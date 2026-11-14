@@ -1,0 +1,526 @@
+<!doctype html><html lang=pt-BR><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=theme-color content="#0F766E"><link rel=manifest href="manifest.webmanifest"><link rel=icon href="icone-192.png"><link rel=apple-touch-icon href="icone-192.png"><meta name=apple-mobile-web-app-capable content=yes><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style><script>window.ROTINA_CFG={"url": "https://sxswqnygtuhcclepdsiv.supabase.co", "anon": "sb_publishable_XJm0Si7R8wtO6F8kebfgEg_jS0zlEjV"};</script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script src="nuvem_shim.js"></script></head><body><title>ROTINA</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: mesa de edição — barra de abas fixa no topo, uma coluna larga de trabalho; marca-texto amarelo para o que pede atenção */
+:root{
+  --bg:#F1F3F0; --surface:#FFFFFF; --sunk:#E6EAE6; --ink:#1A1F1C; --muted:#5E6B64; --line:#D5DBD6;
+  --accent:#0F766E; --accent-ink:#FFFFFF; --mark:#F2B705; --mark-soft:#FFF1C2;
+  --bad:#C2410C; --bad-soft:#FDE6D8; --ok:#15803D; --ok-soft:#DDF3E3; --warn:#A16207; --warn-soft:#FDF0C8;
+  --s-maquina:#7C8780; --s-capcut:#2563EB; --s-exportado:#7C3AED; --s-topaz:#0F766E; --s-conta:#B45309; --s-postado:#15803D;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111513; --surface:#1A201D; --sunk:#232A26; --ink:#E6ECE8; --muted:#97A59D; --line:#2E3832;
+  --accent:#2DD4BF; --accent-ink:#06201C; --mark:#F5C542; --mark-soft:#3A3115;
+  --bad:#FB923C; --bad-soft:#3B2216; --ok:#4ADE80; --ok-soft:#163222; --warn:#FACC15; --warn-soft:#352E12;
+  --s-maquina:#8C978F; --s-capcut:#60A5FA; --s-exportado:#A78BFA; --s-topaz:#2DD4BF; --s-conta:#F59E0B; --s-postado:#4ADE80;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111513; --surface:#1A201D; --sunk:#232A26; --ink:#E6ECE8; --muted:#97A59D; --line:#2E3832;
+  --accent:#2DD4BF; --accent-ink:#06201C; --mark:#F5C542; --mark-soft:#3A3115;
+  --bad:#FB923C; --bad-soft:#3B2216; --ok:#4ADE80; --ok-soft:#163222; --warn:#FACC15; --warn-soft:#352E12;
+  --s-maquina:#8C978F; --s-capcut:#60A5FA; --s-exportado:#A78BFA; --s-topaz:#2DD4BF; --s-conta:#F59E0B; --s-postado:#4ADE80;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding-block:12px 4px}
+.top h1{font-family:var(--f-display);font-weight:800;font-size:22px;margin:0;letter-spacing:-.01em}
+.top .hoje{color:var(--muted);font-size:13px}
+.top .sync{margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav a{padding:10px 12px;color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;border-bottom:3px solid transparent;white-space:nowrap}
+nav a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--mark)}
+nav a .n{font-family:var(--f-mono);font-size:11px;background:var(--sunk);border-radius:99px;padding:1px 6px;margin-left:4px}
+nav a .n.alert{background:var(--bad-soft);color:var(--bad)}
+main{padding-block:20px 60px}
+section.view{display:flex;flex-direction:column;gap:20px}
+h2{font-family:var(--f-display);font-weight:600;font-size:18px;margin:0;text-wrap:balance}
+h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0;font-weight:600}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted)}.small{font-size:13px}.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+textarea{width:100%;resize:vertical;min-height:90px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;font-weight:600;font-size:14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 12px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.ghost{border-color:transparent;background:transparent;color:var(--muted);padding:4px 8px}
+button.ghost:hover{color:var(--ink);background:var(--sunk)}
+button.danger{color:var(--bad)}
+.grow{flex:1 1 200px}
+.capture{display:flex;gap:8px;flex-wrap:wrap}
+.capture input[type=text]{flex:1 1 260px;font-size:16px;padding:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.empty{color:var(--muted);font-size:14px;padding:12px;border:1px dashed var(--line);border-radius:8px}
+/* lista de pensamentos */
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.item .txt{min-width:0;overflow-wrap:anywhere}
+.item.done .txt{text-decoration:line-through;color:var(--muted)}
+.item .meta{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.tag{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:1px 7px;border-radius:4px;background:var(--sunk);color:var(--muted)}
+.tag.ideia{background:var(--mark-soft);color:var(--warn)}
+.tag.tarefa{background:var(--ok-soft);color:var(--ok)}
+.tag.explorar{background:var(--bad-soft);color:var(--bad)}
+.check{width:20px;height:20px;margin-top:2px;accent-color:var(--accent)}
+.item textarea{margin-top:8px;min-height:70px;font-size:14px}
+.area-h{display:flex;align-items:baseline;gap:8px;margin-top:6px}
+.area-h h2{font-size:16px}
+/* rotina */
+.blocks{display:flex;flex-direction:column;gap:6px}
+.block{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;background:var(--bg);border-left:4px solid var(--line)}
+.block.now{background:var(--mark-soft);border-left-color:var(--mark)}
+.block.past{opacity:.55}
+.block .h{font-family:var(--f-mono);font-size:13px}
+.week{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.day h3{margin-bottom:6px}
+.day .block{grid-template-columns:96px 1fr auto}
+.addblock{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.addblock input[type=text]{grid-column:1/-1}
+.addblock button{grid-column:1/-1}
+/* contas */
+.contas{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.conta{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:8px;border-top:5px solid var(--ok)}
+.conta.warn{border-top-color:var(--mark)} .conta.bad{border-top-color:var(--bad)}
+.conta .nome{font-family:var(--f-display);font-weight:800;font-size:18px;overflow-wrap:anywhere}
+.conta .ate{font-family:var(--f-display);font-weight:600;font-size:26px;line-height:1.1}
+.conta .ate small{display:block;font-family:var(--f-body);font-size:12px;font-weight:500;color:var(--muted)}
+.conta .stats{display:flex;gap:14px;font-size:13px;color:var(--muted)}
+.conta .stats b{font-family:var(--f-mono);color:var(--ink)}
+.conta label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+.conta .fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.conta details summary{cursor:pointer;font-size:13px;color:var(--muted)}
+/* esteira de vídeos */
+.pipe{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.stage{border-radius:8px;padding:10px;background:var(--bg);border:1px solid var(--line);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stage .k{font-family:var(--f-display);font-weight:800;font-size:24px;line-height:1}
+.stage .l{font-size:12px;color:var(--muted);font-weight:600}
+.stage[aria-pressed="true"]{outline:2px solid var(--ink)}
+.stage .bar{height:4px;border-radius:2px;margin-top:6px}
+@media (max-width:640px){.pipe{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;color:#fff;white-space:nowrap}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600;padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.p{font-family:var(--f-mono);font-weight:600}
+td .obs{width:100%;min-width:140px;padding:4px 8px;font-size:13px;background:transparent;border-color:transparent}
+td .obs:hover,td .obs:focus{border-color:var(--line);background:var(--bg)}
+.howto{font-size:13px;color:var(--muted);background:var(--bg);border-radius:8px;padding:10px 12px}
+.howto code{font-family:var(--f-mono);font-size:12px;color:var(--ink)}
+/* virais */
+.vform{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+.vform textarea,.vform .full{grid-column:1/-1}
+.viral{display:grid;grid-template-columns:90px 1fr;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.viral:first-child{border-top:0}
+.viral .views{font-family:var(--f-display);font-weight:800;font-size:22px;line-height:1}
+.viral .views small{display:block;font-family:var(--f-body);font-size:11px;font-weight:500;color:var(--muted)}
+.viral .why{font-size:14px;margin-top:4px;overflow-wrap:anywhere}
+.bars{display:flex;flex-direction:column;gap:6px}
+.barrow{display:grid;grid-template-columns:120px 1fr 70px;gap:8px;align-items:center;font-size:13px}
+.barrow .track{height:10px;background:var(--sunk);border-radius:5px;overflow:hidden}
+.barrow .fill{height:100%;background:var(--accent);border-radius:5px}
+.barrow .lab{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status{font-size:13px;color:var(--muted)}
+.status.err{color:var(--bad)}
+.confirm{display:inline-flex;gap:4px;align-items:center;font-size:12px}
+@media (prefers-reduced-motion:no-preference){.stage,.chip,button{transition:background .15s,color .15s}}
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="top">
+      <h1>ROTINA</h1>
+      <span class="hoje" id="hojeTxt"></span>
+      <span class="sync" id="syncTxt"></span>
+    </div>
+    <nav id="nav">
+      <a href="#hoje" data-v="hoje">Hoje</a>
+      <a href="#ideias" data-v="ideias">Pensamentos <span class="n" id="nIdeias">0</span></a>
+      <a href="#contas" data-v="contas">Contas <span class="n" id="nContas">0</span></a>
+      <a href="#videos" data-v="videos">Vídeos</a>
+      <a href="#virais" data-v="virais">Deram bom</a>
+      <a href="#rotina" data-v="rotina">Rotina</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="status" id="status">Carregando seus dados…</p>
+
+  <!-- HOJE -->
+  <section class="view" id="v-hoje">
+    <div class="panel">
+      <h3>Anotar agora</h3>
+      <form class="capture" id="capHoje">
+        <input type="text" id="capHojeTxt" placeholder="Um pensamento, ideia ou tarefa que apareceu…" autocomplete="off">
+        <select id="capHojeTipo" aria-label="Tipo"><option value="pensamento">Pensamento</option><option value="ideia">Ideia</option><option value="tarefa">Tarefa</option></select>
+        <button class="primary">Guardar</button>
+      </form>
+      <p class="small muted" style="margin:0">Vai para a aba Pensamentos. Lá você separa por assunto e desenvolve depois.</p>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="row"><h2 class="grow">Blocos de hoje</h2><a class="small" href="#rotina">editar rotina</a></div>
+        <div class="blocks" id="blocosHoje"></div>
+      </div>
+      <div class="panel">
+        <h2>Pede atenção</h2>
+        <div id="alertas" class="blocks"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="row"><h2 class="grow">O que eu fiz hoje</h2><span class="small muted" id="fizStatus"></span></div>
+      <textarea id="fizHoje" placeholder="Ex.: revisei 8 no CapCut, exportei lt09 e lt10, postei 3 na FEAR, tive a ideia do canal do YouTube…"></textarea>
+      <h3>Dias anteriores</h3>
+      <div id="diasAnt" class="blocks"></div>
+    </div>
+  </section>
+
+  <!-- PENSAMENTOS -->
+  <section class="view" id="v-ideias" hidden>
+    <div class="panel">
+      <form class="capture" id="capIdeia">
+        <input type="text" id="capIdeiaTxt" placeholder="Escreva e aperte Enter" autocomplete="off">
+        <select id="capIdeiaTipo" aria-label="Tipo"><option value="pensamento">Pensamento</option><option value="ideia">Ideia</option><option value="tarefa">Tarefa</option></select>
+        <input type="text" id="capIdeiaArea" list="areasList" placeholder="Assunto (ex.: YouTube)" style="flex:0 1 180px">
+        <button class="primary">Guardar</button>
+      </form>
+      <datalist id="areasList"></datalist>
+      <div class="row">
+        <div class="chips" id="fTipo"></div>
+        <div class="chips" id="fArea"></div>
+      </div>
+      <label class="small muted row"><input type="checkbox" id="mostrarFeitos"> mostrar os já feitos</label>
+    </div>
+    <div id="listaIdeias" class="view"></div>
+  </section>
+
+  <!-- CONTAS -->
+  <section class="view" id="v-contas" hidden>
+    <div class="howto">O dia em cada conta conta assim: vídeos prontos na pasta da conta (<code>E:\manja\&lt;CONTA&gt;\</code>, fora de <code>postados</code>) divididos pelos posts por dia. Se a conta tem fila agendada em outro lugar, preencha "agendado até" e ele vale.</div>
+    <div class="contas" id="listaContas"></div>
+    <form class="panel" id="novaConta">
+      <h3>Nova conta</h3>
+      <div class="row"><input type="text" id="ncNome" placeholder="Nome igual ao da pasta no E:\manja" class="grow" required><input type="number" id="ncPorDia" min="0" step="0.5" value="1" style="width:90px" aria-label="Posts por dia"><button class="primary">Adicionar</button></div>
+    </form>
+  </section>
+
+  <!-- VÍDEOS -->
+  <section class="view" id="v-videos" hidden>
+    <div class="pipe" id="pipe"></div>
+    <div class="row">
+      <input type="search" id="vBusca" placeholder="Procurar (bob45, lt09…)" class="grow">
+      <select id="vConta" aria-label="Conta"><option value="">Todas as contas</option></select>
+      <select id="vTipo" aria-label="Tipo"><option value="">Original e cortes</option><option value="original">Só ORIGINAL</option><option value="cortes">Só cortes</option></select>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Vídeo</th><th>Etapa</th><th>Conta</th><th>Data</th><th>Anotação</th><th></th></tr></thead>
+      <tbody id="tbVideos"></tbody>
+    </table></div>
+    <p class="small muted" id="vCount"></p>
+    <div class="howto"><b>Como exportar sem se perder:</b> exporte do CapCut para <code>E:\manja\&lt;nome do projeto&gt;\</code> (vídeo + MP3). O Topaz pega sozinho o que estiver solto no <code>E:\manja</code>. Depois do Topaz, arraste a pasta para <code>E:\manja\&lt;CONTA&gt;\</code>. Postou? Arraste para <code>E:\manja\&lt;CONTA&gt;\postados\</code>. A etapa sai do lugar da pasta: peça "atualiza o painel" ao Claude e esta lista se atualiza.</div>
+  </section>
+
+  <!-- VIRAIS -->
+  <section class="view" id="v-virais" hidden>
+    <form class="panel" id="vfForm">
+      <h2>Anotar um vídeo que deu bom</h2>
+      <div class="vform">
+        <input type="text" id="vfVideo" list="projList" placeholder="Vídeo (ex.: bob37)" required>
+        <select id="vfConta" aria-label="Conta"></select>
+        <input type="number" id="vfViews" min="0" placeholder="Views">
+        <input type="date" id="vfData" aria-label="Data do post">
+        <input type="text" id="vfTema" placeholder="Filme / série">
+        <input type="text" id="vfTags" placeholder="Tags: gancho forte, briga, romance…">
+        <input type="text" id="vfLink" placeholder="Link (opcional)" class="full">
+        <textarea id="vfPorque" placeholder="Por que você acha que funcionou? Gancho, cena, hora do post, música, capa…"></textarea>
+      </div>
+      <datalist id="projList"></datalist>
+      <div class="row"><button class="primary">Guardar</button><span class="small muted" id="vfStatus"></span></div>
+    </form>
+    <div class="grid2">
+      <div class="panel"><h2>Padrões</h2><div id="padroes"></div></div>
+      <div class="panel"><h2>Lista</h2><div id="listaVirais"></div></div>
+    </div>
+  </section>
+
+  <!-- ROTINA -->
+  <section class="view" id="v-rotina" hidden>
+    <div class="howto">Separe um horário para cada coisa. Os blocos do dia aparecem na aba Hoje, com o bloco de agora marcado.</div>
+    <div class="week" id="semana"></div>
+  </section>
+</main>
+
+<script>
+(function(){
+const DIAS=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+const ETAPAS=[["maquina","Na máquina"],["capcut","No CapCut"],["exportado","Exportado"],["topaz","Topaz feito"],["conta","Na conta"],["postado","Postado"]];
+const ETAPA_NOME=Object.fromEntries(ETAPAS);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const hojeISO=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const fmtData=iso=>{if(!iso)return"";const [y,m,d]=iso.split("-");return d+"/"+m};
+const fmtNum=n=>n>=1e6?(n/1e6).toFixed(1).replace(".",",")+" mi":n>=1e3?Math.round(n/1e3)+" mil":String(n||0);
+const addDias=(n)=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+n);return d};
+const isoDe=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const diasAte=iso=>{const [y,m,d]=iso.split("-").map(Number);const a=new Date(y,m-1,d);const h=addDias(0);return Math.round((a-h)/864e5)};
+
+const S={notas:[],contas:[],virais:[],videosObs:{},estado:{videos:[],atualizado:""},rotina:{blocos:[]},dias:[],
+  fTipo:"",fArea:"",fEtapa:"",abertos:new Set()};
+let db=null;
+
+document.getElementById("hojeTxt").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
+
+/* ---------- navegação ---------- */
+const VIEWS=["hoje","ideias","contas","videos","virais","rotina"];
+function rota(){const v=VIEWS.includes(location.hash.slice(1))?location.hash.slice(1):"hoje";
+  VIEWS.forEach(x=>{document.getElementById("v-"+x).hidden=x!==v});
+  document.querySelectorAll("#nav a").forEach(a=>{if(a.dataset.v===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});}
+window.addEventListener("hashchange",rota);rota();
+
+/* ---------- escrita ---------- */
+const fila={};
+async function grava(path,data,modo){ // uma escrita por vez por documento
+  if(!db){status("Sem conexão com o banco: nada foi salvo.",true);return}
+  const prev=fila[path]||Promise.resolve();
+  const p=prev.then(()=>modo==="del"?db.doc(path).delete():db.doc(path).set(data)).catch(e=>{status("Não salvou ("+(e.code||"erro")+"). Tente de novo.",true)});
+  fila[path]=p;return p;
+}
+function status(t,err){const el=$("#status");el.textContent=t;el.hidden=!t;el.classList.toggle("err",!!err)}
+const deb={};function adiar(k,fn,ms=700){clearTimeout(deb[k]);deb[k]=setTimeout(fn,ms)}
+
+/* não redesenha uma lista enquanto a pessoa digita nela; redesenha ao sair do campo */
+function ocupado(sel,fn){const el=document.querySelector(sel),a=document.activeElement;
+  if(el&&a&&el.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=="checkbox"){
+    if(!el.__esperando){el.__esperando=true;el.addEventListener("focusout",()=>{el.__esperando=false;setTimeout(fn,0)},{once:true})}
+    return true}return false}
+
+/* ---------- render: pensamentos ---------- */
+function areas(){return [...new Set(S.notas.map(n=>n.area).filter(Boolean).concat(["YouTube","Contas","Máquina","Pessoal"]))].sort((a,b)=>a.localeCompare(b))}
+function chips(el,lista,atual,onClick){el.innerHTML=lista.map(([v,l])=>`<button type="button" class="chip" aria-pressed="${v===atual}" data-v="${esc(v)}">${esc(l)}</button>`).join("");
+  el.querySelectorAll("button").forEach(b=>b.onclick=()=>onClick(b.dataset.v))}
+function renderIdeias(){
+  if(ocupado("#listaIdeias",renderIdeias))return;
+  const abertas=S.notas.filter(n=>!n.feito);
+  $("#nIdeias").textContent=abertas.length;
+  $("#areasList").innerHTML=areas().map(a=>`<option value="${esc(a)}">`).join("");
+  chips($("#fTipo"),[["","Tudo"],["pensamento","Pensamentos"],["ideia","Ideias"],["tarefa","Tarefas"],["explorar","Explorar"]],S.fTipo,v=>{S.fTipo=v;renderIdeias()});
+  const usadas=[...new Set(S.notas.map(n=>n.area||"Sem assunto"))].sort();
+  chips($("#fArea"),[["","Todos os assuntos"],...usadas.map(a=>[a,a])],S.fArea,v=>{S.fArea=v;renderIdeias()});
+  const mostrar=$("#mostrarFeitos").checked;
+  let lista=S.notas.filter(n=>(mostrar||!n.feito)&&(!S.fTipo||(S.fTipo==="explorar"?n.explorar:n.tipo===S.fTipo))&&(!S.fArea||(n.area||"Sem assunto")===S.fArea));
+  lista.sort((a,b)=>(a.feito-b.feito)||(b.criado||"").localeCompare(a.criado||""));
+  const grupos={};lista.forEach(n=>{(grupos[n.area||"Sem assunto"]??=[]).push(n)});
+  const el=$("#listaIdeias");
+  if(!lista.length){el.innerHTML=`<div class="empty">${S.notas.length?"Nada com esse filtro.":"Nenhum pensamento ainda. Escreva o primeiro aí em cima, por exemplo: \"canal do YouTube com resumos longos\"."}</div>`;return}
+  el.innerHTML=Object.keys(grupos).sort((a,b)=>a==="Sem assunto"?1:b==="Sem assunto"?-1:a.localeCompare(b)).map(a=>`
+    <div class="panel"><div class="area-h"><h2>${esc(a)}</h2><span class="small muted">${grupos[a].filter(n=>!n.feito).length} em aberto</span></div>
+    <div>${grupos[a].map(itemHTML).join("")}</div></div>`).join("");
+  el.querySelectorAll("[data-id]").forEach(ligarItem);
+}
+function itemHTML(n){const aberto=S.abertos.has(n.id);return `<div class="item ${n.feito?"done":""}" data-id="${n.id}">
+  <input type="checkbox" class="check" ${n.feito?"checked":""} aria-label="Feito">
+  <div class="txt"><div>${esc(n.texto)}</div>
+    <div class="meta"><span class="tag ${n.tipo}">${esc(n.tipo)}</span>${n.explorar?'<span class="tag explorar">explorar</span>':""}<span>${fmtData((n.criado||"").slice(0,10))}</span>${n.desenvolver?"<span>· tem anotações</span>":""}</div>
+    ${aberto?`<textarea data-k="desenvolver" placeholder="Desenvolva a ideia: próximos passos, dúvidas, links…">${esc(n.desenvolver||"")}</textarea>
+    <div class="row" style="margin-top:6px"><input type="text" data-k="area" list="areasList" value="${esc(n.area||"")}" placeholder="Assunto" style="flex:0 1 180px">
+      <select data-k="tipo">${["pensamento","ideia","tarefa"].map(t=>`<option ${t===n.tipo?"selected":""}>${t}</option>`).join("")}</select>
+      <button type="button" class="ghost" data-a="explorar">${n.explorar?"Tirar de explorar":"Marcar para explorar"}</button>
+      <span data-a="delwrap"><button type="button" class="ghost danger" data-a="del">Apagar</button></span></div>`:""}
+  </div>
+  <button type="button" class="ghost" data-a="abrir" aria-expanded="${aberto}">${aberto?"Fechar":"Abrir"}</button></div>`}
+function ligarItem(el){const id=el.dataset.id;const n=()=>S.notas.find(x=>x.id===id);
+  const salvar=patch=>{const o={...n(),...patch};delete o.id;Object.assign(n(),patch);return grava("notas/"+id,o)};
+  el.querySelector(".check").onchange=e=>{salvar({feito:e.target.checked})};
+  el.querySelector('[data-a="abrir"]').onclick=()=>{S.abertos.has(id)?S.abertos.delete(id):S.abertos.add(id);renderIdeias()};
+  el.querySelectorAll("[data-k]").forEach(f=>{const k=f.dataset.k;
+    if(f.tagName==="TEXTAREA")f.oninput=()=>adiar("n"+id,()=>salvar({[k]:f.value}));
+    else f.onchange=()=>salvar({[k]:f.value.trim()})});
+  const ex=el.querySelector('[data-a="explorar"]');if(ex)ex.onclick=()=>salvar({explorar:!n().explorar});
+  const dw=el.querySelector('[data-a="delwrap"]');
+  if(dw)dw.querySelector("button").onclick=()=>{dw.innerHTML='<span class="confirm">Apagar mesmo? <button type="button" class="ghost danger" data-s>Sim</button><button type="button" class="ghost" data-n>Não</button></span>';
+    dw.querySelector("[data-s]").onclick=()=>{S.abertos.delete(id);grava("notas/"+id,null,"del")};
+    dw.querySelector("[data-n]").onclick=()=>renderIdeias()};
+}
+function novaNota(texto,tipo,area){texto=texto.trim();if(!texto)return;const id=uid();
+  const o={texto,tipo,area:(area||"").trim(),feito:false,explorar:false,criado:new Date().toISOString()};
+  S.notas.unshift({id,...o});renderIdeias();renderHoje();grava("notas/"+id,o)}
+$("#capHoje").onsubmit=e=>{e.preventDefault();novaNota($("#capHojeTxt").value,$("#capHojeTipo").value,"");$("#capHojeTxt").value="";$("#capHojeTxt").placeholder="Guardado. Mais algum?"};
+$("#capIdeia").onsubmit=e=>{e.preventDefault();novaNota($("#capIdeiaTxt").value,$("#capIdeiaTipo").value,$("#capIdeiaArea").value);$("#capIdeiaTxt").value="";$("#capIdeiaTxt").focus()};
+$("#mostrarFeitos").onchange=renderIdeias;
+
+/* ---------- contas ---------- */
+function infoConta(c){
+  const vids=S.estado.videos.filter(v=>v.conta===c.nome);
+  const prontos=vids.filter(v=>v.etapa==="conta").length;
+  const postados=vids.filter(v=>v.etapa==="postado").length;
+  const porDia=Number(c.porDia)||0;
+  let ate=null,fonte="";
+  if(c.agendadoAte){ate=c.agendadoAte;fonte="agendado"}
+  if(porDia>0){const auto=isoDe(addDias(Math.floor(prontos/porDia)));if(!ate||auto>ate){ate=auto;fonte=c.agendadoAte?"agendado + prontos":"pelos prontos"}}
+  const falta=ate?diasAte(ate):null;
+  if(!porDia&&!c.agendadoAte)return {prontos,postados,ate:null,falta:null,nivel:"ok",fonte:"",parada:true};
+  const nivel=falta===null?"warn":falta<=1?"bad":falta<=3?"warn":"ok";
+  return {prontos,postados,ate,falta,nivel,fonte};
+}
+function renderContas(){
+  if(ocupado("#listaContas",renderContas))return;
+  const el=$("#listaContas");
+  const alertas=S.contas.filter(c=>infoConta(c).nivel==="bad").length;
+  const n=$("#nContas");n.textContent=alertas||S.contas.length;n.classList.toggle("alert",alertas>0);
+  if(!S.contas.length){el.innerHTML='<div class="empty">Nenhuma conta ainda. Adicione abaixo com o mesmo nome da pasta no E:\\manja.</div>';return}
+  el.innerHTML=S.contas.slice().sort((a,b)=>(infoConta(a).falta??99)-(infoConta(b).falta??99)).map(c=>{const i=infoConta(c);return `
+  <div class="conta ${i.nivel}" data-id="${c.id}">
+    <div class="nome">${esc(c.nome)}</div>
+    <div class="ate">${i.ate?(i.falta<0?"Acabou "+fmtData(i.ate):i.falta===0?"Só hoje":"Até "+fmtData(i.ate)):(i.parada?"Sem postagem":"Sem fila")}<small>${i.parada?"0 posts por dia: não entra nos avisos":i.ate?(i.falta>0?i.falta+(i.falta===1?" dia":" dias")+" de vídeo · "+i.fonte:i.fonte):"defina posts por dia"}</small></div>
+    <div class="stats"><span><b>${i.prontos}</b> prontos</span><span><b>${i.postados}</b> postados</span><span><b>${esc(c.porDia||0)}</b>/dia</span></div>
+    <details><summary>Ajustar</summary>
+      <div class="fields" style="margin-top:8px">
+        <label>Posts por dia<input type="number" min="0" step="0.5" data-k="porDia" value="${esc(c.porDia??1)}"></label>
+        <label>Agendado até<input type="date" data-k="agendadoAte" value="${esc(c.agendadoAte||"")}"></label>
+      </div>
+      <label style="margin-top:8px">Anotações da conta (RPM, nicho, horário…)<textarea data-k="obs" style="min-height:60px">${esc(c.obs||"")}</textarea></label>
+      <span data-a="delwrap"><button type="button" class="ghost danger" data-a="del">Tirar conta do painel</button></span>
+    </details>
+  </div>`}).join("");
+  el.querySelectorAll(".conta").forEach(card=>{const id=card.dataset.id;const c=()=>S.contas.find(x=>x.id===id);
+    const salvar=p=>{Object.assign(c(),p);const o={...c()};delete o.id;return grava("contas/"+id,o).then(()=>{})};
+    card.querySelectorAll("[data-k]").forEach(f=>{const k=f.dataset.k;
+      if(f.tagName==="TEXTAREA")f.oninput=()=>adiar("c"+id,()=>salvar({[k]:f.value}));
+      else f.onchange=()=>{salvar({[k]:k==="porDia"?Number(f.value):f.value});renderContas();renderHoje()}});
+    const dw=card.querySelector('[data-a="delwrap"]');
+    dw.querySelector("button").onclick=()=>{dw.innerHTML='<span class="confirm">Tirar mesmo? <button type="button" class="ghost danger" data-s>Sim</button><button type="button" class="ghost" data-n>Não</button></span>';
+      dw.querySelector("[data-s]").onclick=()=>grava("contas/"+id,null,"del");dw.querySelector("[data-n]").onclick=renderContas};
+  });
+  const opts=S.contas.map(c=>`<option>${esc(c.nome)}</option>`).join("");
+  const vc=$("#vConta"),cur=vc.value;vc.innerHTML='<option value="">Todas as contas</option><option value="-">Sem conta</option>'+opts;vc.value=cur;
+  const fc=$("#vfConta"),cur2=fc.value;fc.innerHTML='<option value="">Conta…</option>'+opts;fc.value=cur2;
+}
+$("#novaConta").onsubmit=e=>{e.preventDefault();const nome=$("#ncNome").value.trim();if(!nome)return;const id=nome.toLowerCase().replace(/[^a-z0-9_-]+/g,"-")||uid();
+  const o={nome,porDia:Number($("#ncPorDia").value)||0,agendadoAte:"",obs:"",criado:new Date().toISOString()};S.contas.push({id,...o});renderContas();grava("contas/"+id,o);$("#ncNome").value=""};
+
+/* ---------- vídeos ---------- */
+function renderVideos(){
+  if(ocupado("#tbVideos",renderVideos))return;
+  const vids=S.estado.videos;
+  const cont=Object.fromEntries(ETAPAS.map(([k])=>[k,0]));vids.forEach(v=>cont[v.etapa]=(cont[v.etapa]||0)+1);
+  const max=Math.max(1,...Object.values(cont));
+  $("#pipe").innerHTML=ETAPAS.map(([k,l])=>`<button type="button" class="stage" data-e="${k}" aria-pressed="${S.fEtapa===k}"><span class="k mono">${cont[k]}</span><span class="l">${l}</span><span class="bar" style="background:var(--s-${k});width:${Math.max(6,cont[k]/max*100)}%"></span></button>`).join("");
+  $("#pipe").querySelectorAll(".stage").forEach(b=>b.onclick=()=>{S.fEtapa=S.fEtapa===b.dataset.e?"":b.dataset.e;renderVideos()});
+  const q=$("#vBusca").value.trim().toLowerCase(),fc=$("#vConta").value,ft=$("#vTipo").value;
+  const lista=vids.filter(v=>(!S.fEtapa||v.etapa===S.fEtapa)&&(!ft||v.tipo===ft)&&(!fc||(fc==="-"?!v.conta:v.conta===fc))&&(!q||(v.proj+" "+(v.pasta||"")).toLowerCase().includes(q)));
+  const mostra=lista.slice(0,300);
+  $("#tbVideos").innerHTML=mostra.length?mostra.map(v=>`<tr data-id="${esc(v.id)}">
+    <td class="p">${esc(v.proj)}${v.tipo==="original"?' <span class="tag">original</span>':""}</td>
+    <td><span class="pill" style="background:var(--s-${v.etapa})">${ETAPA_NOME[v.etapa]||v.etapa}</span></td>
+    <td>${esc(v.conta||"—")}</td><td class="mono small">${fmtData(v.data)}</td>
+    <td><input class="obs" type="text" value="${esc((S.videosObs[v.id]||{}).obs||"")}" placeholder="anotar…" aria-label="Anotação de ${esc(v.proj)}"></td>
+    <td><button type="button" class="ghost" data-a="bom">Deu bom</button></td></tr>`).join("")
+    :`<tr><td colspan="6" class="muted">${vids.length?"Nenhum vídeo com esse filtro.":"A lista ainda está vazia. Peça ao Claude \"atualiza o painel\"."}</td></tr>`;
+  $("#vCount").textContent=lista.length+" de "+vids.length+" vídeos"+(lista.length>300?" (mostrando 300)":"");
+  $("#tbVideos").querySelectorAll("tr[data-id]").forEach(tr=>{const id=tr.dataset.id;const v=vids.find(x=>x.id===id);
+    tr.querySelector(".obs").oninput=e=>adiar("v"+id,()=>{S.videosObs[id]={...(S.videosObs[id]||{}),obs:e.target.value};grava("videos/"+id.replace(/[^A-Za-z0-9_.~:@+-]/g,"-"),S.videosObs[id])});
+    tr.querySelector('[data-a="bom"]').onclick=()=>{$("#vfVideo").value=v.proj+(v.tipo==="original"?" (original)":"");if(v.conta)$("#vfConta").value=v.conta;location.hash="virais";$("#vfViews").focus()}});
+  $("#projList").innerHTML=[...new Set(vids.map(v=>v.proj))].map(p=>`<option value="${esc(p)}">`).join("");
+  $("#syncTxt").textContent=S.estado.atualizado?"pastas lidas em "+S.estado.atualizado.slice(8,10)+"/"+S.estado.atualizado.slice(5,7)+" "+S.estado.atualizado.slice(11):"";
+}
+["vBusca","vConta","vTipo"].forEach(id=>document.getElementById(id).addEventListener("input",renderVideos));
+
+/* ---------- virais ---------- */
+$("#vfData").value=hojeISO();
+$("#vfForm").onsubmit=e=>{e.preventDefault();const id=uid();
+  const o={video:$("#vfVideo").value.trim(),conta:$("#vfConta").value,views:Number($("#vfViews").value)||0,data:$("#vfData").value,tema:$("#vfTema").value.trim(),
+    tags:$("#vfTags").value.split(",").map(t=>t.trim().toLowerCase()).filter(Boolean),link:$("#vfLink").value.trim(),porque:$("#vfPorque").value.trim(),criado:new Date().toISOString()};
+  if(!o.video)return;S.virais.unshift({id,...o});renderVirais();grava("virais/"+id,o);
+  ["vfVideo","vfViews","vfTema","vfTags","vfLink","vfPorque"].forEach(i=>document.getElementById(i).value="");$("#vfStatus").textContent="Guardado."};
+function barras(titulo,mapa){const ent=Object.entries(mapa).sort((a,b)=>b[1].views-a[1].views).slice(0,6);if(!ent.length)return"";const max=Math.max(...ent.map(e=>e[1].views),1);
+  return `<h3 style="margin-top:8px">${titulo}</h3><div class="bars">${ent.map(([k,v])=>`<div class="barrow"><span class="lab" title="${esc(k)}">${esc(k)}</span><span class="track"><span class="fill" style="display:block;width:${v.views/max*100}%"></span></span><span class="mono small">${fmtNum(v.views)} · ${v.n}</span></div>`).join("")}</div>`}
+function renderVirais(){
+  const L=S.virais.slice().sort((a,b)=>(b.views||0)-(a.views||0));
+  $("#listaVirais").innerHTML=L.length?L.map(v=>`<div class="viral" data-id="${v.id}"><div class="views mono">${fmtNum(v.views)}<small>views</small></div>
+    <div><div><b class="mono">${esc(v.video)}</b> <span class="muted small">· ${esc(v.conta||"sem conta")} · ${fmtData(v.data)}${v.tema?" · "+esc(v.tema):""}</span></div>
+    ${v.tags?.length?`<div class="chips" style="margin-top:4px">${v.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>`:""}
+    ${v.porque?`<div class="why">${esc(v.porque)}</div>`:""}
+    <div class="row small">${v.link?`<a href="${esc(v.link)}" target="_blank" rel="noopener">abrir</a>`:""}<span data-a="delwrap"><button type="button" class="ghost danger small">apagar</button></span></div></div></div>`).join("")
+    :'<div class="empty">Quando um vídeo for bem, anote aqui: views, conta e por que você acha que funcionou. Com uns 10 anotados, os padrões aparecem ao lado.</div>';
+  $("#listaVirais").querySelectorAll(".viral").forEach(el=>{const id=el.dataset.id;const dw=el.querySelector('[data-a="delwrap"]');
+    dw.querySelector("button").onclick=()=>{dw.innerHTML='<span class="confirm">Apagar? <button type="button" class="ghost danger" data-s>Sim</button><button type="button" class="ghost" data-n>Não</button></span>';
+      dw.querySelector("[data-s]").onclick=()=>grava("virais/"+id,null,"del");dw.querySelector("[data-n]").onclick=renderVirais}});
+  const agg=f=>{const m={};L.forEach(v=>[].concat(f(v)).filter(Boolean).forEach(k=>{m[k]??={views:0,n:0};m[k].views+=v.views||0;m[k].n++}));return m};
+  const soma=L.reduce((s,v)=>s+(v.views||0),0);
+  $("#padroes").innerHTML=L.length<2?'<div class="empty">Anote pelo menos 2 vídeos para comparar.</div>':
+    `<p class="small" style="margin:0"><b class="mono">${L.length}</b> vídeos anotados, média de <b class="mono">${fmtNum(Math.round(soma/L.length))}</b> views.</p>`+
+    barras("Por tag (views somadas · vídeos)",agg(v=>v.tags))+barras("Por filme / série",agg(v=>v.tema))+barras("Por conta",agg(v=>v.conta))+
+    barras("Original x cortes",agg(v=>/original/i.test(v.video)?"original":"cortes"))+
+    barras("Dia da semana do post",agg(v=>v.data?DIAS[new Date(v.data+"T12:00").getDay()]:""));
+}
+
+/* ---------- rotina ---------- */
+function blocosDoDia(d){return (S.rotina.blocos||[]).filter(b=>b.dia===d).sort((a,b)=>a.inicio.localeCompare(b.inicio))}
+function renderRotina(){
+  $("#semana").innerHTML=[1,2,3,4,5,6,0].map(d=>`<div class="panel day"><h3>${DIAS[d]}</h3><div class="blocks">${blocosDoDia(d).map(b=>`
+    <div class="block"><span class="h">${esc(b.inicio)}–${esc(b.fim)}</span><span>${esc(b.oque)}</span><button type="button" class="ghost" data-del="${b.id}" aria-label="Tirar bloco">×</button></div>`).join("")||'<span class="small muted">Livre</span>'}</div>
+    <form class="addblock" data-dia="${d}"><input type="time" required aria-label="Início" value="09:00"><input type="time" required aria-label="Fim" value="11:00"><input type="text" required placeholder="O quê (CapCut, After, YouTube…)"><button>Adicionar</button></form></div>`).join("");
+  $("#semana").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{S.rotina.blocos=S.rotina.blocos.filter(x=>x.id!==b.dataset.del);salvarRotina()});
+  $("#semana").querySelectorAll("form").forEach(f=>f.onsubmit=e=>{e.preventDefault();const [i,fi,t]=f.querySelectorAll("input");
+    S.rotina.blocos=[...(S.rotina.blocos||[]),{id:uid(),dia:Number(f.dataset.dia),inicio:i.value,fim:fi.value,oque:t.value.trim()}];salvarRotina()});
+}
+function salvarRotina(){renderRotina();renderHoje();grava("rotina/semana",{blocos:S.rotina.blocos})}
+
+/* ---------- hoje ---------- */
+function renderHoje(){
+  const agora=new Date(),hm=String(agora.getHours()).padStart(2,"0")+":"+String(agora.getMinutes()).padStart(2,"0");
+  const bl=blocosDoDia(agora.getDay());
+  $("#blocosHoje").innerHTML=bl.length?bl.map(b=>{const st=hm>=b.inicio&&hm<b.fim?"now":hm>=b.fim?"past":"";return `<div class="block ${st}"><span class="h">${esc(b.inicio)}–${esc(b.fim)}</span><span>${esc(b.oque)}</span><span class="small muted">${st==="now"?"agora":""}</span></div>`}).join("")
+    :'<div class="empty">Nenhum bloco para hoje. Monte sua semana na aba Rotina.</div>';
+  const al=[];
+  S.contas.forEach(c=>{const i=infoConta(c);if(i.nivel!=="ok"&&!i.parada)al.push([i.nivel,`<b>${esc(c.nome)}</b>: ${i.ate?(i.falta<=0?"sem vídeo para amanhã":"vídeo só até "+fmtData(i.ate)):"sem fila definida"}`])});
+  const v=S.estado.videos,c=e=>v.filter(x=>x.etapa===e).length;
+  if(c("topaz"))al.push(["warn",`<b>${c("topaz")}</b> vídeos saíram do Topaz e não foram para nenhuma conta`]);
+  if(c("exportado"))al.push(["warn",`<b>${c("exportado")}</b> exportados esperando o Topaz`]);
+  if(c("capcut"))al.push(["ok",`<b>${c("capcut")}</b> projetos no CapCut ainda não exportados`]);
+  const expl=S.notas.filter(n=>n.explorar&&!n.feito).length;if(expl)al.push(["ok",`<b>${expl}</b> ideias marcadas para explorar`]);
+  $("#alertas").innerHTML=al.length?al.map(([n,t])=>`<div class="block" style="grid-template-columns:1fr;border-left-color:var(--${n==="bad"?"bad":n==="warn"?"mark":"line"})"><span>${t}</span></div>`).join(""):'<div class="empty">Tudo em dia.</div>';
+  const hj=S.dias.find(d=>d.id===hojeISO());const ta=$("#fizHoje");if(document.activeElement!==ta)ta.value=hj?.fiz||"";
+  const ant=S.dias.filter(d=>d.id!==hojeISO()&&d.fiz).sort((a,b)=>b.id.localeCompare(a.id)).slice(0,10);
+  $("#diasAnt").innerHTML=ant.length?ant.map(d=>`<div class="block" style="grid-template-columns:70px 1fr"><span class="h">${fmtData(d.id)}</span><span style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(d.fiz)}</span></div>`).join(""):'<span class="small muted">Os dias que você anotar aparecem aqui.</span>';
+}
+$("#fizHoje").oninput=e=>{$("#fizStatus").textContent="salvando…";adiar("fiz",()=>{const id=hojeISO();const o={fiz:e.target.value,atualizado:new Date().toISOString()};
+  const d=S.dias.find(x=>x.id===id);if(d)d.fiz=o.fiz;else S.dias.push({id,...o});grava("dias/"+id,o).then(()=>$("#fizStatus").textContent="salvo")})};
+
+function tudo(){renderIdeias();renderContas();renderVideos();renderVirais();renderRotina();renderHoje()}
+tudo();setInterval(renderHoje,60000);
+
+/* ---------- banco ---------- */
+(async()=>{
+  db=await (window.claude?.use?.("db")??null);
+  if(!db){status("Abra pelo claude.ai com sua conta para salvar e ver seus dados.",true);return}
+  const timer=setTimeout(()=>status("Os dados ainda não chegaram. Confira a internet; o que aparece pode estar desatualizado.",true),10000);
+  let chegou=0;const ok=()=>{if(++chegou>=1){clearTimeout(timer);status("")}};
+  const err=e=>{clearTimeout(timer);status("Erro ao ler os dados ("+e.code+"). Recarregue a página.",true)};
+  const col=(nome,fn)=>db.collection(nome).onSnapshot(s=>{fn(s.docs.map(d=>({id:d.id,...d.data()})));if(!s.metadata.fromCache)ok()},err);
+  col("notas",l=>{S.notas=l;renderIdeias();renderHoje()});
+  col("contas",l=>{S.contas=l;renderContas();renderHoje();renderVideos()});
+  col("virais",l=>{S.virais=l;renderVirais()});
+  col("dias",l=>{S.dias=l;renderHoje()});
+  col("videos",l=>{S.videosObs=Object.fromEntries(l.map(x=>[x.id,x]));});
+  db.doc("sync/estado").onSnapshot(s=>{if(s.exists){S.estado=s.data();renderVideos();renderContas();renderHoje()}},err);
+  db.doc("rotina/semana").onSnapshot(s=>{if(s.exists){S.rotina={blocos:[...(s.data().blocos||[])]};renderRotina();renderHoje()}},err);
+})();
+})();
+</script>
+</body></html>
