@@ -172,6 +172,25 @@ td .obs:hover,td .obs:focus{border-color:var(--line);background:var(--bg)}
 .dica.claude{border-left-color:var(--accent);white-space:pre-wrap}
 .rpm{font-family:var(--f-mono);font-weight:600;padding:1px 6px;border-radius:4px}
 .rpm.ok{background:var(--ok-soft);color:var(--ok)}.rpm.warn{background:var(--warn-soft);color:var(--warn)}.rpm.bad{background:var(--bad-soft);color:var(--bad)}
+/* saúde */
+.crow .fill.low{background:var(--mark)}
+.crow .fill.q-boa{background:var(--ok)}.crow .fill.q-ok{background:var(--mark)}.crow .fill.q-ruim{background:var(--bad)}
+.semgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.sd-dia{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px;min-height:84px;display:flex;flex-direction:column;gap:3px;font-size:11px;font-weight:500;text-align:left;min-width:0}
+.sd-dia.hoje{outline:2px solid var(--mark)}
+.sd-dia .d{font-weight:700;font-size:12px}
+.mk{border-radius:4px;padding:1px 4px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mk.a{background:var(--ok-soft);color:var(--ok)}.mk.c{background:var(--mark-soft);color:var(--warn)}
+.dots{display:flex;gap:2px;flex-wrap:wrap}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--mark)}
+.dot.boa{background:var(--ok)}.dot.ruim{background:var(--bad)}
+.exrow{display:grid;grid-template-columns:1fr 70px 70px 80px auto;gap:6px;align-items:center}
+.exrow .ult{grid-column:1/-1;font-size:12px;color:var(--muted)}
+@media (max-width:560px){.exrow{grid-template-columns:repeat(3,minmax(0,1fr)) auto}.exrow .nm{grid-column:1/-1}}
+.agua{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.agua .n{font-family:var(--f-display);font-weight:800;font-size:32px;line-height:1}
+.spark{width:100%;height:90px;display:block}
+details.panel>summary{cursor:pointer}
 @media (prefers-reduced-motion:no-preference){.stage,.chip,button{transition:background .15s,color .15s}}
 </style>
 
@@ -185,6 +204,7 @@ td .obs:hover,td .obs:focus{border-color:var(--line);background:var(--bg)}
     <nav id="nav">
       <a href="#hoje" data-v="hoje">Hoje</a>
       <a href="#dinheiro" data-v="dinheiro">Dinheiro <span class="n alert" id="nFin" hidden></span></a>
+      <a href="#saude" data-v="saude">Saúde</a>
       <a href="#ideias" data-v="ideias">Pensamentos <span class="n" id="nIdeias">0</span></a>
       <a href="#contas" data-v="contas">Contas <span class="n" id="nContas">0</span></a>
       <a href="#videos" data-v="videos">Vídeos</a>
@@ -232,6 +252,12 @@ td .obs:hover,td .obs:focus{border-color:var(--line);background:var(--bg)}
     <div class="mesnav"><button type="button" class="ghost" id="finAnt" aria-label="Mês anterior">‹</button><h2 id="finMesTxt"></h2><button type="button" class="ghost" id="finProx" aria-label="Próximo mês">›</button></div>
     <div class="tiles" id="finTiles"></div>
     <div id="finSub" class="view"></div>
+  </section>
+
+  <!-- SAÚDE -->
+  <section class="view" id="v-saude" hidden>
+    <div class="chips" id="sdAbas"></div>
+    <div id="sdSub" class="view"></div>
   </section>
 
   <!-- PENSAMENTOS -->
@@ -331,7 +357,7 @@ let db=null;
 document.getElementById("hojeTxt").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
 
 /* ---------- navegação ---------- */
-const VIEWS=["hoje","dinheiro","ideias","contas","videos","virais","rotina"];
+const VIEWS=["hoje","dinheiro","saude","ideias","contas","videos","virais","rotina"];
 function rota(){const v=VIEWS.includes(location.hash.slice(1))?location.hash.slice(1):"hoje";
   VIEWS.forEach(x=>{document.getElementById("v-"+x).hidden=x!==v});
   document.querySelectorAll("#nav a").forEach(a=>{if(a.dataset.v===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});}
@@ -538,6 +564,8 @@ function renderHoje(){
   if(c("topaz"))al.push(["warn",`<b>${c("topaz")}</b> vídeos saíram do Topaz e não foram para nenhuma conta`]);
   if(c("exportado"))al.push(["warn",`<b>${c("exportado")}</b> exportados esperando o Topaz`]);
   if(c("capcut"))al.push(["ok",`<b>${c("capcut")}</b> projetos no CapCut ainda não exportados`]);
+  const pl=(cfgH().plano||{})[agora.getDay()];
+  if(pl&&pl!=="—"&&pl!=="Descanso"&&!H.treino.some(t=>t.data===hojeISO())&&!H.cardio.some(x=>x.data===hojeISO()))al.push(["ok",`Treino de hoje: <b>${esc(pl)}</b> · <a href="#saude">Saúde</a>`]);
   vencendo().forEach(({f,falta})=>al.push([falta<=0?"bad":"warn",`<b>${esc(f.nome)}</b> ${brl(f.valor)}: ${falta<0?"venceu dia "+esc(f.dia):falta===0?"vence hoje":"vence em "+falta+(falta===1?" dia":" dias")} · <a href="#dinheiro">Dinheiro</a>`]));
   const expl=S.notas.filter(n=>n.explorar&&!n.feito).length;if(expl)al.push(["ok",`<b>${expl}</b> ideias marcadas para explorar`]);
   $("#alertas").innerHTML=al.length?al.map(([n,t])=>`<div class="block" style="grid-template-columns:1fr;border-left-color:var(--${n==="bad"?"bad":n==="warn"?"mark":"line"})"><span>${t}</span></div>`).join(""):'<div class="empty">Tudo em dia.</div>';
@@ -569,8 +597,8 @@ const salvarF=(col,o)=>{const x={...o};delete x.id;return grava(col+"/"+o.id,x)}
 const rpm=x=>x&&num(x.views)>0&&num(x.usd)>0?num(x.usd)/num(x.views)*1000:0;
 const rpmNivel=r=>r>=2?"ok":r>=1?"warn":"bad";
 const opts=(l,sel)=>l.map(c=>`<option ${c===sel?"selected":""}>${esc(c)}</option>`).join("");
-function confirmar(wrap,sim){wrap.innerHTML='<span class="confirm">Apagar? <button type="button" class="ghost danger" data-s>Sim</button><button type="button" class="ghost" data-n>Não</button></span>';
-  wrap.querySelector("[data-s]").onclick=sim;wrap.querySelector("[data-n]").onclick=renderFin}
+function confirmar(wrap,sim,volta){wrap.innerHTML='<span class="confirm">Apagar? <button type="button" class="ghost danger" data-s>Sim</button><button type="button" class="ghost" data-n>Não</button></span>';
+  wrap.querySelector("[data-s]").onclick=sim;wrap.querySelector("[data-n]").onclick=()=>(volta||renderFin)()}
 
 function fixasDoMes(m){return F.fixas.filter(f=>f.tipo!=="divida"||!f.termina||m<=f.termina)}
 function totaisMes(m){
@@ -830,7 +858,252 @@ function subConselho(el,t,dicas){
     w.querySelector("button").onclick=()=>confirmar(w,()=>{F.dicas=F.dicas.filter(y=>y.id!==id);grava("fin_dicas/"+id,null,"del");renderFin()})});
 }
 
-function tudo(){renderIdeias();renderContas();renderVideos();renderVirais();renderRotina();renderFin();renderHoje()}
+/* ---------- saúde ---------- */
+const GRUPOS=["Peito","Costas","Pernas","Ombros","Braços","Core","Corpo todo"];
+const PLANO_OPC=["—","Descanso","Cardio",...GRUPOS];
+const CARDIOS=["Caminhada","Corrida","Esteira","Bike","Escada","Pular corda","Natação","Outro"];
+const REFS=["Café","Almoço","Lanche","Jantar","Beliscada"];
+const QUAL=[["boa","limpa"],["ok","ok"],["ruim","besteira"]];
+const H={treino:[],cardio:[],comida:[],peso:[],dicas:[],cfg:{},aba:"semana",dia:hojeISO(),ex:[],q:"boa"};
+const cfgH=()=>({metaTreinos:4,metaCardio:150,metaAgua:8,plano:{},...H.cfg});
+const diaMais=(iso,n)=>{const [y,m,d]=iso.split("-").map(Number);return isoDe(new Date(y,m-1,d+n))};
+const segunda=iso=>{const [y,m,d]=iso.split("-").map(Number);const x=new Date(y,m-1,d);return diaMais(iso,-((x.getDay()+6)%7))};
+const rs=()=>{document.activeElement?.blur?.();renderSaude()};
+const exTxt=e=>`${e.series||"?"}×${e.reps||"?"}${num(e.carga)?" · "+dec(num(e.carga),num(e.carga)%1?1:0)+" kg":""}`;
+function semanaDe(iso){const s=segunda(iso),dias=[0,1,2,3,4,5,6].map(i=>diaMais(s,i));
+  const tr=H.treino.filter(t=>dias.includes(t.data)),ca=H.cardio.filter(c=>dias.includes(c.data));
+  return {dias,tr,ca,min:ca.reduce((s,c)=>s+num(c.min),0)}}
+function comidaDe(iso){return H.comida.find(c=>c.id===iso)||{id:iso,refeicoes:[],agua:0}}
+function salvarComida(c){H.comida=H.comida.filter(x=>x.id!==c.id).concat([c]);salvarF("sd_comida",c)}
+function pesosOrd(){return H.peso.slice().sort((a,b)=>a.id.localeCompare(b.id))}
+function historicoEx(nome){const k=String(nome||"").trim().toLowerCase(),r=[];if(!k)return r;
+  H.treino.slice().sort((a,b)=>a.data.localeCompare(b.data)||(a.criado||"").localeCompare(b.criado||"")).forEach(t=>(t.exercicios||[]).forEach(e=>{if(e.nome.trim().toLowerCase()===k)r.push({data:t.data,...e})}));return r}
+
+function sdDicasAuto(){
+  const d=[],c=cfgH(),h=hojeISO(),w=semanaDe(h),dow=(new Date().getDay()+6)%7,fezHoje=w.tr.some(t=>t.data===h);
+  if(!(H.treino.length||H.cardio.length||H.comida.length||H.peso.length)){d.push(["warn","Nada anotado ainda. Comece pelo treino de hoje e pelas refeições: com uma semana anotada já dá para dizer alguma coisa útil."]);return d}
+  const falta=c.metaTreinos-w.tr.length,sobra=6-dow+(fezHoje?0:1);
+  if(falta>0&&falta>sobra)d.push(["bad",`Faltam ${falta} treinos para a meta da semana e só sobram ${sobra} dia(s).`]);
+  else if(falta>0&&dow>=3)d.push(["warn",`Faltam ${falta} treino(s) para a meta de ${c.metaTreinos} nesta semana.`]);
+  else if(falta<=0&&c.metaTreinos)d.push(["ok",`Meta de treinos da semana batida (${w.tr.length}).`]);
+  if(c.metaCardio&&dow>=4&&w.min<c.metaCardio*.6)d.push(["warn",`Cardio da semana: ${w.min} de ${c.metaCardio} min.`]);
+  let seq=0,i=fezHoje?0:1;while(H.treino.some(t=>t.data===diaMais(h,-i))){seq++;i++}
+  if(seq>=6)d.push(["warn",`${seq} dias seguidos de academia. Um dia de descanso por semana ajuda o músculo a crescer e evita lesão.`]);
+  GRUPOS.filter(g=>g!=="Corpo todo").forEach(g=>{const ts=H.treino.filter(t=>t.grupo===g).map(t=>t.data).sort();if(ts.length<2)return;
+    const dias=-diasAte(ts[ts.length-1]);if(dias>=10)d.push(["warn",`<b>${g}</b>: ${dias} dias sem treinar.`])});
+  [...new Set(H.treino.filter(t=>-diasAte(t.data)<=35).flatMap(t=>(t.exercicios||[]).map(e=>e.nome.trim())))].forEach(n=>{const hx=historicoEx(n).slice(-3);
+    if(hx.length===3&&hx.every(e=>num(e.carga)===num(hx[0].carga)&&num(e.reps)===num(hx[0].reps)&&num(e.series)===num(hx[0].series)))
+      d.push(["warn",`<b>${esc(n)}</b>: 3 treinos iguais (${exTxt(hx[0])}). Tente 1 repetição a mais ou um pouco mais de carga.`])});
+  const on=comidaDe(diaMais(h,-1));
+  if(((on.refeicoes||[]).length||num(on.agua))&&c.metaAgua&&num(on.agua)<c.metaAgua*.75)d.push(["warn",`Ontem foram ${num(on.agua)} copos de água (meta ${c.metaAgua}).`]);
+  const R7=[...Array(7)].flatMap((_,i)=>comidaDe(diaMais(h,-i)).refeicoes||[]),ruim=R7.filter(r=>r.q==="ruim").length;
+  if(R7.length>=6&&ruim/R7.length>.3)d.push(["warn",`${pct(ruim/R7.length)} das refeições dos últimos 7 dias foram besteira. Troque uma por dia, não todas de uma vez.`]);
+  if(new Date().getHours()>=15&&!(comidaDe(h).refeicoes||[]).length&&H.comida.length)d.push(["warn","Nenhuma refeição anotada hoje."]);
+  const P=pesosOrd();
+  if(P.length>=2){const u=P[P.length-1],a=P.slice().reverse().find(p=>p.id<=diaMais(u.id,-6));
+    if(a){const dias=diasAte(u.id)-diasAte(a.id),taxa=(num(u.kg)-num(a.kg))/dias*7,meta=num(c.pesoMeta);
+      if(taxa<-num(u.kg)*.01)d.push(["warn",`Perdendo ${dec(-taxa)} kg por semana. Mais rápido que uns 1% do peso por semana costuma levar músculo junto.`]);
+      else if(meta&&meta<num(u.kg)&&taxa>.2)d.push(["warn",`Peso subindo ${dec(taxa)} kg por semana e a meta é ${dec(meta)} kg.`]);
+      else if(meta&&meta>num(u.kg)&&taxa<-.2)d.push(["warn",`Peso caindo e a meta é chegar a ${dec(meta)} kg.`]);}}
+  return d;
+}
+
+function resumoSaude(){
+  const c=cfgH(),h=hojeISO(),L=[];
+  L.push(`Minha saúde — semana de ${fmtData(segunda(h))} (hoje ${new Date().toLocaleDateString("pt-BR")})`);
+  L.push(`Metas: ${c.metaTreinos} treinos/semana, ${c.metaCardio} min de cardio/semana, ${c.metaAgua} copos de água/dia${num(c.pesoMeta)?", peso "+dec(num(c.pesoMeta))+" kg":""}`);
+  L.push("Plano: "+[1,2,3,4,5,6,0].map(d=>DIAS[d].slice(0,3)+" "+((c.plano||{})[d]||"—")).join(", "));
+  [0,1].forEach(n=>{const w=semanaDe(diaMais(segunda(h),-7*n));
+    L.push(`${n?"Semana passada":"Esta semana"}: ${w.tr.length} treinos (${w.tr.sort((a,b)=>a.data.localeCompare(b.data)).map(t=>fmtData(t.data)+" "+t.grupo+": "+(t.exercicios||[]).map(e=>e.nome+" "+exTxt(e)).join(", ")).join(" | ")||"nenhum"}); cardio ${w.min} min (${w.ca.map(x=>x.tipo+" "+num(x.min)+" min"+(num(x.km)?" "+dec(num(x.km))+" km":"")+" "+(x.intens||"")).join(", ")||"nenhum"})`)});
+  L.push("Alimentação, últimos 7 dias:");
+  [...Array(7)].forEach((_,i)=>{const d=diaMais(h,-i),cd=comidaDe(d);if((cd.refeicoes||[]).length||num(cd.agua))
+    L.push(`  ${fmtData(d)}: água ${num(cd.agua)} copos; `+(cd.refeicoes||[]).map(r=>`${r.tipo}: ${r.oque} (${(QUAL.find(q=>q[0]===r.q)||[0,"ok"])[1]}${num(r.prot)?", "+num(r.prot)+" g prot.":""})`).join("; "))});
+  L.push("Peso: "+(pesosOrd().slice(-8).map(p=>fmtData(p.id)+" "+dec(num(p.kg))+" kg"+(num(p.cintura)?" (cintura "+num(p.cintura)+" cm)":"")).join(", ")||"nada"));
+  const a=sdDicasAuto().map(x=>x[1].replace(/<[^>]+>/g,""));if(a.length)L.push("Avisos do app: "+a.join(" "));
+  return L.join("\n");
+}
+
+function renderSaude(){
+  if(ocupado("#v-saude",renderSaude))return;
+  const dicas=sdDicasAuto(),nb=dicas.filter(x=>x[0]==="bad").length;
+  chips($("#sdAbas"),[["semana","Semana"],["academia","Academia"],["cardio","Cardio"],["comida","Alimentação"],["peso","Peso"],["conselho","Conselho"+(nb?" · "+nb:"")]],H.aba,v=>{H.aba=v;rs()});
+  ({semana:sdSemana,academia:sdAcademia,cardio:sdCardio,comida:sdComida,peso:sdPeso,conselho:sdConselho})[H.aba]($("#sdSub"),dicas);
+}
+
+function sdSemana(el){
+  const c=cfgH(),h=hojeISO(),w=semanaDe(h),cm=comidaDe(h),P=pesosOrd(),u=P[P.length-1],p4=u&&P.filter(p=>p.id<=diaMais(u.id,-28)).pop();
+  const plano=(c.plano||{})[new Date().getDay()]||"—",feito=w.tr.some(t=>t.data===h)||w.ca.some(x=>x.data===h);
+  el.innerHTML=`<div class="tiles">
+    <div class="tile ${w.tr.length>=c.metaTreinos?"ok":""}"><span class="l">Treinos na semana</span><span class="v">${w.tr.length} de ${c.metaTreinos}</span></div>
+    <div class="tile ${w.min>=c.metaCardio?"ok":""}"><span class="l">Cardio na semana</span><span class="v">${w.min} de ${c.metaCardio} min</span></div>
+    <div class="tile ${num(cm.agua)>=c.metaAgua?"ok":""}"><span class="l">Água hoje</span><span class="v">${num(cm.agua)} de ${c.metaAgua} copos</span></div>
+    <div class="tile"><span class="l">Peso${p4?" (4 semanas)":""}</span><span class="v">${u?dec(num(u.kg))+" kg":"—"}${p4?` <span class="small muted">${num(u.kg)>=num(p4.kg)?"+":"−"}${dec(Math.abs(num(u.kg)-num(p4.kg)))}</span>`:""}</span></div></div>
+  ${plano!=="—"?`<div class="howto">Hoje no plano: <b>${esc(plano)}</b>${feito?" · feito ✓":""}</div>`:""}
+  <div class="panel"><h2>Esta semana</h2><div class="semgrid">${w.dias.map((d,i)=>{const tr=H.treino.filter(t=>t.data===d),ca=H.cardio.filter(x=>x.data===d),cd=comidaDe(d);
+    return `<button type="button" class="sd-dia ${d===h?"hoje":""}" data-d="${d}"><span class="d">${DIAS[(i+1)%7].slice(0,3)} ${d.slice(8)}</span>
+      ${tr.map(t=>`<span class="mk a" title="${esc(t.grupo)}">${esc(t.grupo)}</span>`).join("")}${ca.map(x=>`<span class="mk c" title="${esc(x.tipo)}">${num(x.min)} min</span>`).join("")}
+      <span class="dots">${(cd.refeicoes||[]).map(r=>`<span class="dot ${esc(r.q||"ok")}"></span>`).join("")}</span></button>`}).join("")}</div>
+    <p class="small muted" style="margin:0">Verde: academia · amarelo: cardio · bolinhas: refeições (verde limpa, amarela ok, vermelha besteira). Toque num dia para ver a alimentação dele.</p></div>
+  <details class="panel" id="sdCfg" ${H.cfgAberto?"open":""}><summary><b>Metas e plano da semana</b></summary>
+    <div class="fform" style="margin-top:10px">
+      <label>Treinos por semana<input type="number" min="0" max="14" data-c="metaTreinos" value="${c.metaTreinos}"></label>
+      <label>Cardio por semana (min)<input type="number" min="0" step="10" data-c="metaCardio" value="${c.metaCardio}"></label>
+      <label>Copos de água por dia<input type="number" min="0" max="30" data-c="metaAgua" value="${c.metaAgua}"></label>
+      <label>Peso que quero (kg)<input type="text" inputmode="decimal" data-c="pesoMeta" value="${num(c.pesoMeta)?dec(num(c.pesoMeta)):""}" placeholder="opcional"></label>
+    </div>
+    <h3 style="margin-top:12px">Plano de cada dia</h3>
+    <div class="fform">${[1,2,3,4,5,6,0].map(d=>`<label>${DIAS[d]}<select data-p="${d}">${opts(PLANO_OPC,(c.plano||{})[d]||"—")}</select></label>`).join("")}</div></details>`;
+  $("#sdCfg").ontoggle=e=>{H.cfgAberto=e.target.open};
+  el.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{H.dia=b.dataset.d;H.aba="comida";rs()});
+  el.querySelectorAll("[data-c]").forEach(i=>i.onchange=()=>{H.cfg={...cfgH(),[i.dataset.c]:num(i.value)};grava("sd_cfg/geral",H.cfg);rs()});
+  el.querySelectorAll("[data-p]").forEach(s=>s.onchange=()=>{const c=cfgH();H.cfg={...c,plano:{...(c.plano||{}),[s.dataset.p]:s.value}};grava("sd_cfg/geral",H.cfg);rs();renderHoje()});
+}
+
+function sdAcademia(el){
+  const c=cfgH();
+  if(!H.ex.length)H.ex=[{nome:"",series:"",reps:"",carga:""}];
+  if(!H.grupo){const p=(c.plano||{})[new Date().getDay()];H.grupo=GRUPOS.includes(p)?p:GRUPOS[0]}
+  const nomes=[...new Set(H.treino.flatMap(t=>(t.exercicios||[]).map(e=>e.nome)).filter(Boolean))].sort();
+  const ultG=H.treino.filter(t=>t.grupo===H.grupo).sort((a,b)=>b.data.localeCompare(a.data))[0];
+  const L=H.treino.slice().sort((a,b)=>b.data.localeCompare(a.data)||(b.criado||"").localeCompare(a.criado||"")).slice(0,20);
+  const cont={};H.treino.forEach(t=>(t.exercicios||[]).forEach(e=>{const n=e.nome.trim();if(n)cont[n]=(cont[n]||0)+1}));
+  const prog=Object.entries(cont).filter(([,n])=>n>=2).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([n])=>{const hx=historicoEx(n);return {n,a:hx[0],b:hx[hx.length-1],k:hx.length}});
+  const ultTxt=nome=>{const hx=historicoEx(nome),u=hx[hx.length-1];return u?`Última vez (${fmtData(u.data)}): ${exTxt(u)}`:""};
+  el.innerHTML=`<form class="panel" id="trNovo"><div class="row"><h2 class="grow">Anotar treino</h2>${ultG?`<button type="button" class="ghost" id="trRepetir">Repetir o último de ${esc(H.grupo)}</button>`:""}</div>
+    <div class="row"><select id="trGrupo" aria-label="Grupo muscular">${opts(GRUPOS,H.grupo)}</select><input type="date" id="trData" value="${H.trData||hojeISO()}" aria-label="Data"></div>
+    <div class="blocks">${H.ex.map((e,i)=>`<div class="exrow" data-i="${i}">
+      <input type="text" class="nm" data-k="nome" list="exNomes" value="${esc(e.nome)}" placeholder="Exercício (supino, agachamento…)" autocomplete="off">
+      <input type="number" min="0" data-k="series" value="${esc(e.series)}" placeholder="séries" aria-label="Séries">
+      <input type="number" min="0" data-k="reps" value="${esc(e.reps)}" placeholder="reps" aria-label="Repetições">
+      <input type="text" inputmode="decimal" data-k="carga" value="${esc(e.carga)}" placeholder="kg" aria-label="Carga em kg">
+      <button type="button" class="ghost" data-a="tira" aria-label="Tirar exercício">×</button>
+      <span class="ult">${esc(ultTxt(e.nome))}</span></div>`).join("")}</div>
+    <datalist id="exNomes">${nomes.map(n=>`<option value="${esc(n)}">`).join("")}</datalist>
+    <div class="row"><button type="button" id="trMais">+ exercício</button><button class="primary">Guardar treino</button><span class="small muted">${esc(H.msg||"")}</span></div></form>
+  <div class="grid2">
+    <div class="panel"><h2>Últimos treinos</h2><div>${L.length?L.map(t=>`<div class="fx" style="grid-template-columns:auto 1fr auto" data-id="${esc(t.id)}"><span class="mono small">${fmtData(t.data)}</span>
+      <div class="txt"><b>${esc(t.grupo)}</b><div class="meta">${(t.exercicios||[]).map(e=>esc(e.nome)+" "+exTxt(e)).join(" · ")}</div></div>
+      <span data-a="delwrap"><button type="button" class="ghost" aria-label="Apagar treino">×</button></span></div>`).join(""):'<div class="empty">Nenhum treino anotado.</div>'}</div></div>
+    <div class="panel"><h2>Evolução</h2><div>${prog.length?prog.map(p=>`<div class="lanc" style="grid-template-columns:1fr auto"><span class="txt"><b>${esc(p.n)}</b><div class="meta">${p.k} treinos, desde ${fmtData(p.a.data)}</div></span><span class="mono small">${exTxt(p.a)} → <b>${exTxt(p.b)}</b></span></div>`).join("")
+      :'<div class="empty">Quando o mesmo exercício aparecer em 2 treinos, a evolução de carga aparece aqui.</div>'}</div></div>
+  </div>`;
+  H.msg="";
+  const lerEx=()=>el.querySelectorAll(".exrow").forEach(r=>{const e=H.ex[r.dataset.i];r.querySelectorAll("[data-k]").forEach(i=>e[i.dataset.k]=i.value)});
+  el.querySelectorAll(".exrow").forEach(r=>{const e=H.ex[r.dataset.i];
+    r.querySelectorAll("[data-k]").forEach(i=>i.oninput=()=>{e[i.dataset.k]=i.value});
+    r.querySelector('[data-k="nome"]').onchange=ev=>{e.nome=ev.target.value;r.querySelector(".ult").textContent=ultTxt(e.nome)};
+    r.querySelector('[data-a="tira"]').onclick=()=>{lerEx();H.ex.splice(Number(r.dataset.i),1);rs()}});
+  $("#trGrupo").onchange=ev=>{lerEx();H.grupo=ev.target.value;rs()};
+  $("#trData").onchange=ev=>{H.trData=ev.target.value};
+  $("#trMais").onclick=()=>{lerEx();H.ex.push({nome:"",series:"",reps:"",carga:""});rs();const n=el.querySelectorAll(".nm");n[n.length-1]?.focus()};
+  const rep=$("#trRepetir");if(rep)rep.onclick=()=>{H.ex=(ultG.exercicios||[]).map(e=>({nome:e.nome,series:e.series||"",reps:e.reps||"",carga:num(e.carga)?dec(num(e.carga),num(e.carga)%1?1:0):""}));rs()};
+  $("#trNovo").onsubmit=ev=>{ev.preventDefault();lerEx();
+    const ex=H.ex.filter(e=>e.nome.trim()).map(e=>({nome:e.nome.trim(),series:num(e.series),reps:num(e.reps),carga:num(e.carga)}));
+    if(!ex.length){H.msg="Escreva pelo menos um exercício.";rs();return}
+    const id=uid(),o={data:H.trData||hojeISO(),grupo:H.grupo,exercicios:ex,criado:new Date().toISOString()};
+    H.treino.push({id,...o});grava("sd_treino/"+id,o);H.ex=[];H.trData="";H.msg="Treino guardado.";rs();renderHoje()};
+  el.querySelectorAll(".fx[data-id]").forEach(r=>{const id=r.dataset.id,w=r.querySelector('[data-a="delwrap"]');
+    w.querySelector("button").onclick=()=>confirmar(w,()=>{H.treino=H.treino.filter(t=>t.id!==id);grava("sd_treino/"+id,null,"del");rs();renderHoje()},renderSaude)});
+}
+
+function sdCardio(el){
+  const c=cfgH(),L=H.cardio.slice().sort((a,b)=>b.data.localeCompare(a.data)||(b.criado||"").localeCompare(a.criado||"")).slice(0,30);
+  const sem=[3,2,1,0].map(n=>{const s=diaMais(segunda(hojeISO()),-7*n);return {s,min:semanaDe(s).min}}),max=Math.max(c.metaCardio||0,...sem.map(x=>x.min),1);
+  el.innerHTML=`<form class="panel" id="caNovo"><h2>Anotar cardio</h2><div class="fform">
+    <label>Tipo<select id="caTipo">${opts(CARDIOS,H.caTipo)}</select></label>
+    <label>Minutos<input type="number" id="caMin" min="1" required placeholder="30"></label>
+    <label>Distância (km, opcional)<input type="text" id="caKm" inputmode="decimal" placeholder="km"></label>
+    <label>Intensidade<select id="caInt">${opts(["leve","moderada","forte"],"moderada")}</select></label>
+    <label>Data<input type="date" id="caData" value="${hojeISO()}"></label>
+    <div class="full"><button class="primary">Guardar</button></div></div></form>
+  <div class="grid2">
+    <div class="panel"><h2>Minutos por semana</h2><div class="bars">${sem.map(x=>`<div class="crow"><span>semana de ${fmtData(x.s)}</span><span class="mono">${x.min} min</span>
+      <span class="track"><span class="fill ${x.min>=c.metaCardio?"":"low"}" style="width:${x.min/max*100}%"></span>${c.metaCardio?`<span class="lim" style="left:${c.metaCardio/max*100}%"></span>`:""}</span></div>`).join("")}</div>
+      <p class="small muted" style="margin:0">A linha preta é a meta (${c.metaCardio} min). 150 min de cardio moderado por semana é o que a OMS recomenda.</p></div>
+    <div class="panel"><h2>Últimos</h2><div>${L.length?L.map(x=>`<div class="fx" style="grid-template-columns:auto 1fr auto" data-id="${esc(x.id)}"><span class="mono small">${fmtData(x.data)}</span>
+      <div class="txt"><b>${esc(x.tipo)}</b> · ${num(x.min)} min${num(x.km)?" · "+dec(num(x.km))+" km":""}<div class="meta">${esc(x.intens||"")}</div></div>
+      <span data-a="delwrap"><button type="button" class="ghost" aria-label="Apagar">×</button></span></div>`).join(""):'<div class="empty">Nenhum cardio anotado.</div>'}</div></div>
+  </div>`;
+  $("#caNovo").onsubmit=ev=>{ev.preventDefault();const min=num($("#caMin").value);if(!(min>0))return;const id=uid();H.caTipo=$("#caTipo").value;
+    const o={data:$("#caData").value||hojeISO(),tipo:H.caTipo,min,km:num($("#caKm").value),intens:$("#caInt").value,criado:new Date().toISOString()};
+    H.cardio.push({id,...o});grava("sd_cardio/"+id,o);rs();renderHoje()};
+  el.querySelectorAll(".fx[data-id]").forEach(r=>{const id=r.dataset.id,w=r.querySelector('[data-a="delwrap"]');
+    w.querySelector("button").onclick=()=>confirmar(w,()=>{H.cardio=H.cardio.filter(t=>t.id!==id);grava("sd_cardio/"+id,null,"del");rs();renderHoje()},renderSaude)});
+}
+
+function sdComida(el){
+  const c=cfgH(),h=hojeISO(),d=H.dia>h?h:H.dia,cd=comidaDe(d),R=(cd.refeicoes||[]).slice().sort((a,b)=>(a.hora||"").localeCompare(b.hora||""));
+  const hr=new Date().getHours(),tipoAuto=hr<10?"Café":hr<15?"Almoço":hr<18?"Lanche":"Jantar";
+  const q={boa:0,ok:0,ruim:0};[...Array(7)].forEach((_,i)=>(comidaDe(diaMais(h,-i)).refeicoes||[]).forEach(r=>q[r.q||"ok"]++));const tq=q.boa+q.ok+q.ruim;
+  const prot=R.reduce((s,r)=>s+num(r.prot),0);
+  el.innerHTML=`<div class="mesnav"><button type="button" class="ghost" id="cdAnt" aria-label="Dia anterior">‹</button><h2>${d===h?"Hoje":esc(new Date(d+"T12:00").toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"}))}</h2>${d<h?'<button type="button" class="ghost" id="cdProx" aria-label="Próximo dia">›</button>':""}</div>
+  <div class="grid2">
+    <div class="panel"><h2>Água</h2><div class="agua"><button type="button" id="agMenos" aria-label="Um copo a menos">−</button><span class="n mono">${num(cd.agua)}</span><span class="muted">de ${c.metaAgua} copos</span><button type="button" class="primary" id="agMais">+ copo</button></div>
+      <div class="prog"><span style="width:${Math.min(1,num(cd.agua)/(c.metaAgua||8))*100}%"></span></div></div>
+    <div class="panel"><h2>Últimos 7 dias</h2>${tq?`<div class="bars">${QUAL.map(([k,l])=>`<div class="crow"><span>${l}</span><span class="mono">${q[k]} · ${pct(q[k]/tq)}</span><span class="track"><span class="fill q-${k}" style="width:${q[k]/tq*100}%"></span></span></div>`).join("")}</div>`
+      :'<div class="empty">Anote as refeições por uma semana para ver o padrão.</div>'}</div>
+  </div>
+  <form class="panel" id="rfNovo"><h3>Anotar refeição</h3><div class="fform">
+    <label>Refeição<select id="rfTipo">${opts(REFS,d===h?tipoAuto:"Almoço")}</select></label>
+    <label class="full">O que comeu<input type="text" id="rfOque" required placeholder="arroz, feijão, frango, salada…" autocomplete="off"></label>
+    <label>Proteína (g, opcional)<input type="number" id="rfProt" min="0" placeholder="g"></label>
+    <div class="full row"><span class="small muted">Foi:</span><div class="chips" id="rfQ">${QUAL.map(([k,l])=>`<button type="button" class="chip" data-q="${k}" aria-pressed="${H.q===k}">${l}</button>`).join("")}</div><button class="primary">Guardar</button></div></div></form>
+  <div class="panel"><div class="row"><h2 class="grow">Refeições</h2>${prot?`<span class="mono small">${prot} g de proteína</span>`:""}</div>
+    <div>${R.length?R.map(r=>`<div class="fx" style="grid-template-columns:auto 1fr auto" data-id="${esc(r.id)}"><span class="dot ${esc(r.q||"ok")}" style="width:10px;height:10px"></span>
+      <div class="txt"><b>${esc(r.tipo)}</b> <span class="small muted">${esc(r.hora||"")}</span><div>${esc(r.oque)}${num(r.prot)?` <span class="small muted">· ${num(r.prot)} g prot.</span>`:""}</div></div>
+      <span data-a="delwrap"><button type="button" class="ghost" aria-label="Apagar refeição">×</button></span></div>`).join(""):'<div class="empty">Nada anotado neste dia.</div>'}</div></div>`;
+  $("#cdAnt").onclick=()=>{H.dia=diaMais(d,-1);rs()};
+  const px=$("#cdProx");if(px)px.onclick=()=>{H.dia=diaMais(d,1);rs()};
+  const agua=n=>{const x={...comidaDe(d),refeicoes:[...(comidaDe(d).refeicoes||[])]};x.agua=Math.max(0,num(x.agua)+n);salvarComida(x);rs()};
+  $("#agMais").onclick=()=>agua(1);$("#agMenos").onclick=()=>agua(-1);
+  el.querySelectorAll("#rfQ [data-q]").forEach(b=>b.onclick=()=>{H.q=b.dataset.q;el.querySelectorAll("#rfQ [data-q]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+  $("#rfNovo").onsubmit=ev=>{ev.preventDefault();const oque=$("#rfOque").value.trim();if(!oque)return;
+    const agora=new Date(),r={id:uid(),tipo:$("#rfTipo").value,oque,q:H.q,prot:num($("#rfProt").value),hora:d===h?String(agora.getHours()).padStart(2,"0")+":"+String(agora.getMinutes()).padStart(2,"0"):""};
+    const x=comidaDe(d);salvarComida({...x,refeicoes:[...(x.refeicoes||[]),r]});H.q="boa";rs()};
+  el.querySelectorAll(".fx[data-id]").forEach(row=>{const id=row.dataset.id,w=row.querySelector('[data-a="delwrap"]');
+    w.querySelector("button").onclick=()=>confirmar(w,()=>{const x=comidaDe(d);salvarComida({...x,refeicoes:(x.refeicoes||[]).filter(r=>r.id!==id)});rs()},renderSaude)});
+}
+
+function sdPeso(el){
+  const c=cfgH(),P=pesosOrd(),R=P.slice().reverse(),pts=P.slice(-40),meta=num(c.pesoMeta);let svg="";
+  if(pts.length>=2){const ks=pts.map(p=>num(p.kg)),mn=Math.min(...ks,meta||Infinity)-.5,mx=Math.max(...ks,meta||-Infinity)+.5,X=i=>i/(pts.length-1)*300,Y=k=>78-(k-mn)/(mx-mn)*74;
+    svg=`<svg class="spark" viewBox="0 0 300 80" preserveAspectRatio="none" role="img" aria-label="Peso ao longo do tempo">${meta?`<line x1="0" x2="300" y1="${Y(meta)}" y2="${Y(meta)}" stroke="var(--muted)" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>`:""}
+      <polyline fill="none" stroke="var(--accent)" stroke-width="2" vector-effect="non-scaling-stroke" points="${pts.map((p,i)=>X(i).toFixed(1)+","+Y(num(p.kg)).toFixed(1)).join(" ")}"/></svg>`}
+  el.innerHTML=`<form class="panel" id="psNovo"><h2>Anotar peso</h2><div class="fform">
+    <label>Data<input type="date" id="psData" value="${hojeISO()}"></label>
+    <label>Peso (kg)<input type="text" id="psKg" inputmode="decimal" required placeholder="kg"></label>
+    <label>Cintura (cm, opcional)<input type="text" id="psCin" inputmode="decimal" placeholder="cm"></label>
+    <div class="full"><button class="primary">Guardar</button></div></div>
+    <p class="small muted" style="margin:0">Pese sempre do mesmo jeito: de manhã, em jejum, depois do banheiro. Uma vez por semana basta; o que importa é a tendência.</p></form>
+  <div class="panel"><div class="row"><h2 class="grow">Histórico</h2>${meta?`<span class="small muted">meta ${dec(meta)} kg (tracejado)</span>`:""}</div>${svg}
+    <div>${R.length?R.map((p,i)=>{const ant=R[i+1],df=ant?num(p.kg)-num(ant.kg):0;return `<div class="fx" style="grid-template-columns:auto 1fr auto auto" data-id="${esc(p.id)}"><span class="mono small">${fmtData(p.id)}</span>
+      <div class="txt"><b class="mono">${dec(num(p.kg))} kg</b>${num(p.cintura)?` <span class="small muted">· cintura ${dec(num(p.cintura),0)} cm</span>`:""}</div>
+      <span class="mono small muted">${ant?(df>0?"+":df<0?"−":"")+dec(Math.abs(df)):""}</span>
+      <span data-a="delwrap"><button type="button" class="ghost" aria-label="Apagar">×</button></span></div>`}).join(""):'<div class="empty">Nenhum peso anotado.</div>'}</div></div>`;
+  $("#psNovo").onsubmit=ev=>{ev.preventDefault();const kg=num($("#psKg").value);if(!(kg>0))return;const id=$("#psData").value||hojeISO(),o={kg,cintura:num($("#psCin").value)};
+    H.peso=H.peso.filter(p=>p.id!==id).concat([{id,...o}]);grava("sd_peso/"+id,o);rs()};
+  el.querySelectorAll(".fx[data-id]").forEach(r=>{const id=r.dataset.id,w=r.querySelector('[data-a="delwrap"]');
+    w.querySelector("button").onclick=()=>confirmar(w,()=>{H.peso=H.peso.filter(p=>p.id!==id);grava("sd_peso/"+id,null,"del");rs()},renderSaude)});
+}
+
+function sdConselho(el,dicas){
+  const D=H.dicas.slice().sort((a,b)=>(b.criado||"").localeCompare(a.criado||""));
+  el.innerHTML=`<div class="grid2">
+    <div class="panel"><h2>Do Claude</h2><div class="dicas">${D.length?D.map(x=>`<div class="dica claude" data-id="${esc(x.id)}">${esc(x.texto)}<div class="row small muted" style="margin-top:6px">${fmtData((x.criado||"").slice(0,10))}<span data-a="delwrap"><button type="button" class="ghost small">apagar</button></span></div></div>`).join("")
+      :'<div class="empty">Quando você me pedir opinião sobre treino ou comida, eu deixo aqui o que acho, sem rodeio.</div>'}</div></div>
+    <div class="panel"><h2>Avisos</h2><div class="dicas">${dicas.length?dicas.map(([n,x])=>`<div class="dica ${n}">${x}</div>`).join(""):'<div class="dica ok">Nada fora do lugar.</div>'}</div></div>
+  </div>
+  <div class="panel"><h2>Pedir minha opinião</h2>
+    <p class="small muted" style="margin:0">No PC, é só me pedir "olha minha saúde": eu leio daqui direto. No celular, copie o resumo e cole na conversa. Dor, tontura ou lesão é caso de médico, não de app.</p>
+    <div class="row"><button type="button" class="primary" id="sdCopiar">Copiar resumo da semana</button><span class="small muted" id="sdCpMsg"></span></div>
+    <details><summary class="small muted">Ver o resumo</summary><textarea readonly id="sdResumo" style="min-height:200px;font-family:var(--f-mono);font-size:12px">${esc(resumoSaude())}</textarea></details></div>`;
+  $("#sdCopiar").onclick=async()=>{const tx=resumoSaude();try{await navigator.clipboard.writeText(tx);$("#sdCpMsg").textContent="Copiado. Cole na conversa com o Claude."}
+    catch(e){const a=$("#sdResumo");a.closest("details").open=true;a.select();$("#sdCpMsg").textContent="Não deu para copiar sozinho: o texto está selecionado, copie com Ctrl+C."}};
+  el.querySelectorAll(".dica.claude").forEach(r=>{const id=r.dataset.id,w=r.querySelector('[data-a="delwrap"]');
+    w.querySelector("button").onclick=()=>confirmar(w,()=>{H.dicas=H.dicas.filter(y=>y.id!==id);grava("sd_dicas/"+id,null,"del");rs()},renderSaude)});
+}
+
+function tudo(){renderIdeias();renderContas();renderVideos();renderVirais();renderRotina();renderFin();renderSaude();renderHoje()}
 tudo();setInterval(renderHoje,60000);
 
 /* ---------- banco ---------- */
@@ -852,6 +1125,12 @@ tudo();setInterval(renderHoje,60000);
   col("fin_invest",l=>{F.invest=l;renderFin()});
   col("fin_tiktok",l=>{F.tiktok=l;renderFin()});
   col("fin_dicas",l=>{F.dicas=l;renderFin()});
+  col("sd_treino",l=>{H.treino=l;renderSaude();renderHoje()});
+  col("sd_cardio",l=>{H.cardio=l;renderSaude();renderHoje()});
+  col("sd_comida",l=>{H.comida=l;renderSaude()});
+  col("sd_peso",l=>{H.peso=l;renderSaude()});
+  col("sd_dicas",l=>{H.dicas=l;renderSaude()});
+  db.doc("sd_cfg/geral").onSnapshot(s=>{if(s.exists){H.cfg=s.data();renderSaude();renderHoje()}},err);
   db.doc("fin_cfg/geral").onSnapshot(s=>{if(s.exists){F.cfg={orc:{},...s.data()};renderFin()}},err);
   db.doc("sync/estado").onSnapshot(s=>{if(s.exists){S.estado=s.data();renderVideos();renderContas();renderHoje()}},err);
   db.doc("rotina/semana").onSnapshot(s=>{if(s.exists){S.rotina={blocos:[...(s.data().blocos||[])]};renderRotina();renderHoje()}},err);
