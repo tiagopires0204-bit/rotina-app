@@ -136,6 +136,42 @@ td .obs:hover,td .obs:focus{border-color:var(--line);background:var(--bg)}
 .status{font-size:13px;color:var(--muted)}
 .status.err{color:var(--bad)}
 .confirm{display:inline-flex;gap:4px;align-items:center;font-size:12px}
+/* dinheiro */
+.mesnav{display:flex;align-items:center;gap:4px}
+.mesnav h2{min-width:0}
+.mesnav button{font-size:20px;line-height:1;padding:4px 10px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:2px;border-left:4px solid var(--line);min-width:0}
+.tile .l{font-size:12px;color:var(--muted);font-weight:600}
+.tile .v{font-family:var(--f-display);font-weight:800;font-size:21px;line-height:1.15;overflow-wrap:anywhere}
+.tile.ok{border-left-color:var(--ok)}.tile.warn{border-left-color:var(--mark)}.tile.bad{border-left-color:var(--bad)}.tile.bad .v{color:var(--bad)}
+.lform{display:grid;grid-template-columns:110px 1fr 1.4fr 1fr 150px auto;gap:8px}
+.lform #fnValor{font-size:16px}
+@media (max-width:760px){.lform{grid-template-columns:1fr 1fr}.lform #fnDesc,.lform button{grid-column:1/-1}}
+.lanc,.fx{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.lanc:first-child,.fx:first-child{border-top:0}
+.lanc .txt,.fx .txt{min-width:0;overflow-wrap:anywhere}
+.fx .meta,.lanc .meta{font-size:12px;color:var(--muted)}
+.fx.done .txt b{text-decoration:line-through;color:var(--muted)}
+.pos{color:var(--ok)}
+.val{width:96px;text-align:right;padding:4px 8px;font-size:14px}
+.crow{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:13px}
+.crow .track{grid-column:1/-1;height:10px;background:var(--sunk);border-radius:5px;position:relative}
+.crow .fill{display:block;height:100%;background:var(--accent);border-radius:5px}
+.crow .fill.over{background:var(--bad)}
+.crow .lim{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+.orcgrid,.fform{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.orcgrid{margin-top:8px}
+.orcgrid label,.fform label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+.fform .full{grid-column:1/-1}
+.prog{height:10px;background:var(--sunk);border-radius:5px;overflow:hidden}
+.prog span{display:block;height:100%;background:var(--accent)}
+.dicas{display:flex;flex-direction:column;gap:8px}
+.dica{padding:10px 12px;border-radius:8px;background:var(--bg);border-left:4px solid var(--line);font-size:14px;overflow-wrap:anywhere}
+.dica.bad{border-left-color:var(--bad)}.dica.warn{border-left-color:var(--mark)}.dica.ok{border-left-color:var(--ok)}
+.dica.claude{border-left-color:var(--accent);white-space:pre-wrap}
+.rpm{font-family:var(--f-mono);font-weight:600;padding:1px 6px;border-radius:4px}
+.rpm.ok{background:var(--ok-soft);color:var(--ok)}.rpm.warn{background:var(--warn-soft);color:var(--warn)}.rpm.bad{background:var(--bad-soft);color:var(--bad)}
 @media (prefers-reduced-motion:no-preference){.stage,.chip,button{transition:background .15s,color .15s}}
 </style>
 
@@ -148,6 +184,7 @@ td .obs:hover,td .obs:focus{border-color:var(--line);background:var(--bg)}
     </div>
     <nav id="nav">
       <a href="#hoje" data-v="hoje">Hoje</a>
+      <a href="#dinheiro" data-v="dinheiro">Dinheiro <span class="n alert" id="nFin" hidden></span></a>
       <a href="#ideias" data-v="ideias">Pensamentos <span class="n" id="nIdeias">0</span></a>
       <a href="#contas" data-v="contas">Contas <span class="n" id="nContas">0</span></a>
       <a href="#videos" data-v="videos">Vídeos</a>
@@ -187,6 +224,14 @@ td .obs:hover,td .obs:focus{border-color:var(--line);background:var(--bg)}
       <h3>Dias anteriores</h3>
       <div id="diasAnt" class="blocks"></div>
     </div>
+  </section>
+
+  <!-- DINHEIRO -->
+  <section class="view" id="v-dinheiro" hidden>
+    <div class="chips" id="finAbas"></div>
+    <div class="mesnav"><button type="button" class="ghost" id="finAnt" aria-label="Mês anterior">‹</button><h2 id="finMesTxt"></h2><button type="button" class="ghost" id="finProx" aria-label="Próximo mês">›</button></div>
+    <div class="tiles" id="finTiles"></div>
+    <div id="finSub" class="view"></div>
   </section>
 
   <!-- PENSAMENTOS -->
@@ -286,7 +331,7 @@ let db=null;
 document.getElementById("hojeTxt").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
 
 /* ---------- navegação ---------- */
-const VIEWS=["hoje","ideias","contas","videos","virais","rotina"];
+const VIEWS=["hoje","dinheiro","ideias","contas","videos","virais","rotina"];
 function rota(){const v=VIEWS.includes(location.hash.slice(1))?location.hash.slice(1):"hoje";
   VIEWS.forEach(x=>{document.getElementById("v-"+x).hidden=x!==v});
   document.querySelectorAll("#nav a").forEach(a=>{if(a.dataset.v===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});}
@@ -493,6 +538,7 @@ function renderHoje(){
   if(c("topaz"))al.push(["warn",`<b>${c("topaz")}</b> vídeos saíram do Topaz e não foram para nenhuma conta`]);
   if(c("exportado"))al.push(["warn",`<b>${c("exportado")}</b> exportados esperando o Topaz`]);
   if(c("capcut"))al.push(["ok",`<b>${c("capcut")}</b> projetos no CapCut ainda não exportados`]);
+  vencendo().forEach(({f,falta})=>al.push([falta<=0?"bad":"warn",`<b>${esc(f.nome)}</b> ${brl(f.valor)}: ${falta<0?"venceu dia "+esc(f.dia):falta===0?"vence hoje":"vence em "+falta+(falta===1?" dia":" dias")} · <a href="#dinheiro">Dinheiro</a>`]));
   const expl=S.notas.filter(n=>n.explorar&&!n.feito).length;if(expl)al.push(["ok",`<b>${expl}</b> ideias marcadas para explorar`]);
   $("#alertas").innerHTML=al.length?al.map(([n,t])=>`<div class="block" style="grid-template-columns:1fr;border-left-color:var(--${n==="bad"?"bad":n==="warn"?"mark":"line"})"><span>${t}</span></div>`).join(""):'<div class="empty">Tudo em dia.</div>';
   const hj=S.dias.find(d=>d.id===hojeISO());const ta=$("#fizHoje");if(document.activeElement!==ta)ta.value=hj?.fiz||"";
@@ -502,7 +548,289 @@ function renderHoje(){
 $("#fizHoje").oninput=e=>{$("#fizStatus").textContent="salvando…";adiar("fiz",()=>{const id=hojeISO();const o={fiz:e.target.value,atualizado:new Date().toISOString()};
   const d=S.dias.find(x=>x.id===id);if(d)d.fiz=o.fiz;else S.dias.push({id,...o});grava("dias/"+id,o).then(()=>$("#fizStatus").textContent="salvo")})};
 
-function tudo(){renderIdeias();renderContas();renderVideos();renderVirais();renderRotina();renderHoje()}
+/* ---------- dinheiro ---------- */
+const CAT_SAI=["Moradia","Mercado","Comida fora","Transporte","Contas da casa","Assinaturas","Ferramentas do trabalho","Saúde","Lazer","Compras","Educação","Dívidas","Outros"];
+const CAT_ENT=["TikTok","Trabalho","Presente","Outros"];
+const TIPOS_INV=["Reserva (resgate no dia)","Renda fixa","Ações / fundos","Cripto","Outro"];
+const F={lanc:[],fixas:[],metas:[],invest:[],tiktok:[],dicas:[],cfg:{orc:{}},mes:hojeISO().slice(0,7),aba:"mes",tipo:"saida"};
+const brl=n=>(Number(n)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const usd=n=>"US$ "+(Number(n)||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const num=v=>{if(typeof v==="number")return v;const s=String(v??"").replace(/\s|R\$|US\$/g,"");if(!s)return 0;
+  return Number(s.includes(",")?s.replace(/\./g,"").replace(",","."):s)||0};
+const pct=x=>Math.round(x*100)+"%";
+const dec=(x,c=1)=>Number(x).toFixed(c).replace(".",",");
+const mesAtual=()=>hojeISO().slice(0,7);
+const mesTxt=m=>{const [y,mm]=m.split("-").map(Number);return new Date(y,mm-1,15).toLocaleDateString("pt-BR",{month:"long",year:"numeric"})};
+const mesTit=m=>{const s=mesTxt(m);return s.charAt(0).toUpperCase()+s.slice(1)};
+const mesCurto=m=>m?m.slice(5,7)+"/"+m.slice(2,4):"";
+const mesMais=(m,n)=>{const [y,mm]=m.split("-").map(Number);const d=new Date(y,mm-1+n,15);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")};
+const mesesEntre=(a,b)=>{const [y1,m1]=a.split("-").map(Number),[y2,m2]=b.split("-").map(Number);return (y2-y1)*12+(m2-m1)};
+const salvarF=(col,o)=>{const x={...o};delete x.id;return grava(col+"/"+o.id,x)};
+const rpm=x=>x&&num(x.views)>0&&num(x.usd)>0?num(x.usd)/num(x.views)*1000:0;
+const rpmNivel=r=>r>=2?"ok":r>=1?"warn":"bad";
+const opts=(l,sel)=>l.map(c=>`<option ${c===sel?"selected":""}>${esc(c)}</option>`).join("");
+function confirmar(wrap,sim){wrap.innerHTML='<span class="confirm">Apagar? <button type="button" class="ghost danger" data-s>Sim</button><button type="button" class="ghost" data-n>Não</button></span>';
+  wrap.querySelector("[data-s]").onclick=sim;wrap.querySelector("[data-n]").onclick=renderFin}
+
+function fixasDoMes(m){return F.fixas.filter(f=>f.tipo!=="divida"||!f.termina||m<=f.termina)}
+function totaisMes(m){
+  const L=F.lanc.filter(l=>(l.data||"").slice(0,7)===m),tk=F.tiktok.filter(t=>t.mes===m);
+  const tkBRL=tk.reduce((s,t)=>s+num(t.brl),0);
+  const ent=L.filter(l=>l.tipo==="entrada").reduce((s,l)=>s+num(l.valor),0)+tkBRL;
+  const S_=L.filter(l=>l.tipo!=="entrada"),sai=S_.reduce((s,l)=>s+num(l.valor),0);
+  const porCat={};S_.forEach(l=>{const c=l.cat||"Outros";porCat[c]=(porCat[c]||0)+num(l.valor)});
+  const aPagar=fixasDoMes(m).filter(f=>!(f.pagos||{})[m]).reduce((s,f)=>s+num(f.valor),0);
+  return {L,tk,tkBRL,ent,sai,sobra:ent-sai,porCat,aPagar};
+}
+function gastoMedio(){ // média das saídas dos 3 meses anteriores que têm lançamento; sem histórico, o maior entre este mês e as fixas
+  const ms=[1,2,3].map(n=>totaisMes(mesMais(mesAtual(),-n))).filter(t=>t.L.length);
+  if(ms.length)return ms.reduce((s,t)=>s+t.sai,0)/ms.length;
+  return Math.max(totaisMes(mesAtual()).sai,fixasDoMes(mesAtual()).reduce((s,f)=>s+num(f.valor),0));
+}
+function vencendo(){const m=mesAtual(),hoje=new Date().getDate();
+  return fixasDoMes(m).filter(f=>!(f.pagos||{})[m]&&Number(f.dia)).map(f=>({f,falta:Number(f.dia)-hoje})).filter(x=>x.falta<=3).sort((a,b)=>a.falta-b.falta)}
+function marcarPaga(f,m,pago){
+  f.pagos={...(f.pagos||{})};if(pago)f.pagos[m]=true;else delete f.pagos[m];salvarF("fin_fixas",f);
+  const lid="fx_"+f.id+"_"+m;F.lanc=F.lanc.filter(x=>x.id!==lid);
+  if(pago){const [y,mm]=m.split("-").map(Number);const ult=new Date(y,mm,0).getDate();
+    const o={tipo:"saida",valor:num(f.valor),desc:f.nome,cat:f.cat||(f.tipo==="divida"?"Dívidas":"Contas da casa"),data:m+"-"+String(Math.min(Number(f.dia)||1,ult)).padStart(2,"0"),fixa:f.id,criado:new Date().toISOString()};
+    F.lanc.push({id:lid,...o});grava("fin_lanc/"+lid,o)}
+  else grava("fin_lanc/"+lid,null,"del");
+  renderFin();renderHoje();
+}
+
+function finDicasAuto(){
+  const d=[],m=F.mes,t=totaisMes(m),atual=m===mesAtual();
+  if(t.L.length||t.tk.length){
+    if(t.sobra<0)d.push(["bad",`Em ${mesTxt(m)} saiu mais do que entrou: faltam <b>${brl(-t.sobra)}</b>.`]);
+    else if(t.ent>0&&t.sobra/t.ent<.1&&!atual)d.push(["warn",`Sobrou só ${pct(t.sobra/t.ent)} do que entrou. Guardar 10 a 20% por mês é o mínimo que costuma dar folga.`]);}
+  Object.entries(F.cfg.orc||{}).forEach(([c,lim])=>{lim=num(lim);if(!lim)return;const g=t.porCat[c]||0;
+    if(g>lim)d.push(["bad",`<b>${esc(c)}</b> passou do limite: ${brl(g)} de ${brl(lim)}.`]);
+    else if(atual&&g>lim*.8)d.push(["warn",`<b>${esc(c)}</b> já usou ${pct(g/lim)} do limite do mês.`])});
+  if(atual)vencendo().forEach(({f,falta})=>d.push([falta<0?"bad":"warn",`<b>${esc(f.nome)}</b> (${brl(f.valor)}) ${falta<0?"venceu dia "+esc(f.dia)+" e não está marcada como paga":falta===0?"vence hoje":"vence em "+falta+(falta===1?" dia":" dias")}.`]));
+  F.fixas.filter(f=>f.tipo==="divida"&&num(f.juros)>=2&&(!f.termina||m<=f.termina)).forEach(f=>{const aa=Math.pow(1+num(f.juros)/100,12)-1;
+    d.push(["bad",`<b>${esc(f.nome)}</b> cobra ${dec(num(f.juros))}% ao mês (uns ${pct(aa)} ao ano). Quitar ou trocar por uma dívida mais barata rende mais que qualquer aplicação comum.`])});
+  const gm=gastoMedio(),res=F.metas.find(x=>x.reserva);let mm=null;
+  if(!res)d.push(["warn","Crie uma meta marcada como <b>reserva de emergência</b>. Renda de TikTok muda muito de um mês para o outro; o comum é ter uns 6 meses de gastos guardados."]);
+  else if(gm>0){mm=num(res.guardado)/gm;d.push([mm<3?"bad":mm<6?"warn":"ok",`A reserva cobre <b>${dec(mm)} meses</b> de gastos (média de ${brl(gm)} por mês).${mm<6?" O alvo é 6.":""}`])}
+  const risco=F.invest.filter(i=>/Ações|Cripto/.test(i.tipo||"")).reduce((s,i)=>s+num(i.valor),0);
+  if(risco>0&&(mm===null||mm<3))d.push(["warn",`Tem ${brl(risco)} em renda variável e menos de 3 meses de reserva. A ordem que costuma funcionar: reserva primeiro, num lugar com resgate no mesmo dia, depois risco.`]);
+  const ms=[...new Set(F.tiktok.map(x=>x.mes))].filter(x=>x<=m).sort(),ult=ms[ms.length-1];
+  if(ult){const L=F.tiktok.filter(x=>x.mes===ult),tot=L.reduce((s,x)=>s+num(x.usd),0),top=L.slice().sort((a,b)=>num(b.usd)-num(a.usd))[0];
+    if(tot>0&&L.length>1&&num(top.usd)/tot>.6)d.push(["warn",`${pct(num(top.usd)/tot)} do TikTok de ${mesTxt(ult)} veio da <b>${esc(top.conta)}</b>. Se ela cair, a renda cai junto.`]);
+    const ant=ms[ms.length-2];if(ant)L.forEach(x=>{const r1=rpm(F.tiktok.find(y=>y.mes===ant&&y.conta===x.conta)),r2=rpm(x);
+      if(r1&&r2&&r2<r1*.75)d.push(["warn",`RPM da <b>${esc(x.conta)}</b> caiu de ${usd(r1)} para ${usd(r2)} por mil views.`])});}
+  const ferr=t.porCat["Ferramentas do trabalho"]||0;
+  if(ferr&&t.tkBRL&&ferr/t.tkBRL>.3)d.push(["warn",`As ferramentas do trabalho custaram ${pct(ferr/t.tkBRL)} do que o TikTok pagou em ${mesTxt(m)}.`]);
+  if(atual){const ds=F.lanc.map(l=>l.data).filter(x=>x&&x<=hojeISO()).sort(),u=ds[ds.length-1];
+    if(!u)d.push(["warn","Nenhum gasto anotado ainda. Anote tudo por umas semanas: sem isso as contas daqui não dizem nada."]);
+    else if(-diasAte(u)>=5)d.push(["warn",`Nenhum lançamento há ${-diasAte(u)} dias. O resumo só vale se tudo for anotado.`])}
+  return d;
+}
+
+function resumoTexto(){
+  const m=F.mes,t=totaisMes(m),o=F.cfg.orc||{},L=[];
+  L.push(`Minhas finanças — ${mesTxt(m)} (hoje ${new Date().toLocaleDateString("pt-BR")})`);
+  L.push(`Entrou ${brl(t.ent)} (TikTok ${brl(t.tkBRL)}) · saiu ${brl(t.sai)} · sobrou ${brl(t.sobra)} · fixas ainda a pagar ${brl(t.aPagar)} · gasto médio ${brl(gastoMedio())}/mês`);
+  L.push("Por categoria: "+(Object.entries(t.porCat).sort((a,b)=>b[1]-a[1]).map(([c,v])=>c+" "+brl(v)+(num(o[c])?" (limite "+brl(o[c])+")":"")).join("; ")||"nada"));
+  L.push("Maiores gastos: "+(t.L.filter(l=>l.tipo!=="entrada").sort((a,b)=>num(b.valor)-num(a.valor)).slice(0,8).map(l=>`${l.desc||l.cat} ${brl(l.valor)}`).join("; ")||"nada"));
+  const fx=fixasDoMes(m);
+  L.push("Fixas: "+(fx.filter(f=>f.tipo!=="divida").map(f=>`${f.nome} ${brl(f.valor)} dia ${f.dia||"?"}${(f.pagos||{})[m]?" (paga)":""}`).join("; ")||"nenhuma"));
+  L.push("Dívidas: "+(fx.filter(f=>f.tipo==="divida").map(f=>`${f.nome} parcela ${brl(f.valor)}${num(f.juros)?", "+dec(num(f.juros))+"% a.m.":""}${num(f.saldo)?", deve "+brl(f.saldo):""}${f.termina?", até "+mesCurto(f.termina):""}`).join("; ")||"nenhuma"));
+  L.push("Metas: "+(F.metas.map(x=>`${x.nome}${x.reserva?" (reserva)":""} ${brl(x.guardado)} de ${brl(x.alvo)}${x.prazo?" até "+mesCurto(x.prazo):""}`).join("; ")||"nenhuma"));
+  L.push("Investimentos: "+(F.invest.map(i=>`${i.nome} (${i.tipo}) ${brl(i.valor)}`).join("; ")||"nenhum"));
+  const ms=[...new Set(F.tiktok.map(x=>x.mes))].sort().slice(-3);
+  L.push("TikTok: "+(ms.map(mm=>mesCurto(mm)+": "+F.tiktok.filter(x=>x.mes===mm).map(x=>`${x.conta} ${fmtNum(num(x.views))} views ${usd(x.usd)}${rpm(x)?" RPM "+dec(rpm(x),2):""}${num(x.brl)?" recebi "+brl(x.brl):""}`).join(", ")).join(" | ")||"nada"));
+  const a=finDicasAuto().map(x=>x[1].replace(/<[^>]+>/g,""));if(a.length)L.push("Avisos do app: "+a.join(" "));
+  return L.join("\n");
+}
+
+function renderFin(){
+  if(ocupado("#v-dinheiro",renderFin))return;
+  const dicas=finDicasAuto(),nb=dicas.filter(x=>x[0]==="bad").length;
+  const n=$("#nFin");n.textContent=nb;n.hidden=!nb;
+  chips($("#finAbas"),[["mes","Mês"],["fixas","Fixas e dívidas"],["tiktok","TikTok"],["metas","Metas e reserva"],["invest","Investimentos"],["conselho","Conselho"+(nb?" · "+nb:"")]],F.aba,v=>{F.aba=v;renderFin()});
+  $("#finMesTxt").textContent=mesTit(F.mes);
+  const t=totaisMes(F.mes);
+  $("#finTiles").innerHTML=[["Entrou",brl(t.ent),""],["Saiu",brl(t.sai),""],["Sobrou",brl(t.sobra),t.sobra<0?"bad":t.ent?"ok":""],["Fixas a pagar",brl(t.aPagar),t.aPagar?"warn":""]]
+    .map(([l,v,c])=>`<div class="tile ${c}"><span class="l">${l}</span><span class="v">${v}</span></div>`).join("");
+  ({mes:subMes,fixas:subFixas,tiktok:subTiktok,metas:subMetas,invest:subInvest,conselho:subConselho})[F.aba]($("#finSub"),t,dicas);
+}
+$("#finAnt").onclick=()=>{F.mes=mesMais(F.mes,-1);renderFin()};
+$("#finProx").onclick=()=>{F.mes=mesMais(F.mes,1);renderFin()};
+
+function subMes(el,t){
+  const o=F.cfg.orc||{};
+  const cats=[...new Set([...Object.keys(t.porCat),...Object.keys(o).filter(c=>num(o[c])>0)])].sort((a,b)=>(t.porCat[b]||0)-(t.porCat[a]||0));
+  const max=Math.max(1,...cats.map(c=>Math.max(t.porCat[c]||0,num(o[c]))));
+  const L=t.L.slice().sort((a,b)=>(b.data||"").localeCompare(a.data||"")||(b.criado||"").localeCompare(a.criado||""));
+  el.innerHTML=`<form class="panel" id="finNovo"><h3>Anotar</h3>
+    <div class="lform">
+      <select id="fnTipo" aria-label="Tipo"><option value="saida">Gastei</option><option value="entrada" ${F.tipo==="entrada"?"selected":""}>Entrou</option></select>
+      <input type="text" id="fnValor" inputmode="decimal" placeholder="Valor (R$)" required autocomplete="off">
+      <input type="text" id="fnDesc" placeholder="Com o quê (mercado, MiniMax…)" autocomplete="off">
+      <select id="fnCat" aria-label="Categoria">${opts(F.tipo==="entrada"?CAT_ENT:CAT_SAI,F.ultCat)}</select>
+      <input type="date" id="fnData" value="${F.mes===mesAtual()?hojeISO():F.mes+"-01"}" aria-label="Data">
+      <button class="primary">Guardar</button>
+    </div><span class="small muted" id="fnMsg">${esc(F.msg||"")}</span></form>
+  <div class="grid2">
+    <div class="panel"><h2>Para onde foi</h2>
+      <div class="bars">${cats.length?cats.map(c=>{const g=t.porCat[c]||0,lim=num(o[c]);return `<div class="crow"><span>${esc(c)}</span><span class="mono">${brl(g)}${lim?' <span class="muted">/ '+brl(lim)+"</span>":""}</span>
+        <span class="track"><span class="fill ${lim&&g>lim?"over":""}" style="width:${g/max*100}%"></span>${lim?`<span class="lim" style="left:${lim/max*100}%"></span>`:""}</span></div>`}).join(""):'<div class="empty">Nenhum gasto anotado neste mês.</div>'}</div>
+      <details><summary class="small muted">Limites por categoria (a linha preta na barra)</summary>
+        <div class="orcgrid">${CAT_SAI.map(c=>`<label>${esc(c)}<input type="text" inputmode="decimal" data-orc="${esc(c)}" value="${num(o[c])?dec(num(o[c]),2):""}" placeholder="sem limite"></label>`).join("")}</div></details>
+    </div>
+    <div class="panel"><h2>Lançamentos <span class="small muted">${L.length}</span></h2>
+      <div>${L.length?L.slice(0,300).map(l=>`<div class="lanc" data-id="${esc(l.id)}"><span class="mono small">${fmtData(l.data)}</span>
+        <span class="txt">${esc(l.desc||l.cat)}<div class="meta">${esc(l.cat||"")}${l.fixa?" · fixa":""}</div></span>
+        <span class="mono ${l.tipo==="entrada"?"pos":""}">${l.tipo==="entrada"?"+":"−"}${brl(l.valor)}</span>
+        <span data-a="delwrap"><button type="button" class="ghost" aria-label="Apagar">×</button></span></div>`).join("")
+        +t.tk.filter(x=>num(x.brl)).map(x=>`<div class="lanc"><span class="mono small">${mesCurto(x.mes)}</span><span class="txt">TikTok · ${esc(x.conta)}<div class="meta">da aba TikTok</div></span><span class="mono pos">+${brl(x.brl)}</span><span></span></div>`).join("")
+        :'<div class="empty">Anote cada gasto na hora, nem que seja R$ 5. É o que faz o resto funcionar.</div>'}</div>
+    </div>
+  </div>`;
+  $("#fnTipo").onchange=e=>{F.tipo=e.target.value;$("#fnCat").innerHTML=opts(F.tipo==="entrada"?CAT_ENT:CAT_SAI)};
+  $("#finNovo").onsubmit=e=>{e.preventDefault();const v=num($("#fnValor").value);if(!(v>0)){$("#fnMsg").textContent="Valor inválido.";return}
+    const id=uid(),o={tipo:F.tipo,valor:v,desc:$("#fnDesc").value.trim(),cat:$("#fnCat").value,data:$("#fnData").value||hojeISO(),criado:new Date().toISOString()};
+    F.tipo="saida";F.ultCat=o.tipo==="saida"?o.cat:F.ultCat;F.msg="Guardado: "+brl(v)+" em "+o.cat+".";clearTimeout(F.msgT);F.msgT=setTimeout(()=>{F.msg="";const m=$("#fnMsg");if(m)m.textContent=""},5000);F.lanc.push({id,...o});grava("fin_lanc/"+id,o);
+    document.activeElement?.blur();renderFin();renderHoje()};
+  el.querySelectorAll("[data-orc]").forEach(i=>i.onchange=()=>{F.cfg={...F.cfg,orc:{...(F.cfg.orc||{}),[i.dataset.orc]:num(i.value)}};grava("fin_cfg/geral",F.cfg);renderFin()});
+  el.querySelectorAll(".lanc[data-id]").forEach(r=>{const id=r.dataset.id,w=r.querySelector('[data-a="delwrap"]');
+    w.querySelector("button").onclick=()=>confirmar(w,()=>{const l=F.lanc.find(x=>x.id===id),f=l&&l.fixa&&F.fixas.find(x=>x.id===l.fixa);
+      if(f)marcarPaga(f,l.data.slice(0,7),false);else{F.lanc=F.lanc.filter(x=>x.id!==id);grava("fin_lanc/"+id,null,"del");renderFin()}})});
+}
+
+function subFixas(el){
+  const m=F.mes,fx=fixasDoMes(m).slice().sort((a,b)=>(Number(a.dia)||99)-(Number(b.dia)||99));
+  const fixas=fx.filter(f=>f.tipo!=="divida"),div=fx.filter(f=>f.tipo==="divida");
+  const soma=l=>l.reduce((s,f)=>s+num(f.valor),0);
+  const linha=f=>{const pago=!!(f.pagos||{})[m],rest=f.termina?mesesEntre(m,f.termina)+1:null;return `<div class="fx ${pago?"done":""}" data-id="${esc(f.id)}">
+    <input type="checkbox" class="check" ${pago?"checked":""} aria-label="Paga em ${esc(mesTxt(m))}">
+    <div class="txt"><b>${esc(f.nome)}</b><div class="meta">dia ${esc(f.dia||"?")} · ${esc(f.cat||"")}${f.tipo==="divida"?
+      ` · ${rest!=null?rest+(rest===1?" parcela":" parcelas")+", até "+mesCurto(f.termina):"sem fim definido"}${num(f.juros)?" · "+dec(num(f.juros))+"% a.m.":""}`:""}</div>
+      ${f.tipo==="divida"?`<label class="meta row" style="gap:6px">ainda devo <input type="text" inputmode="decimal" class="val" data-k="saldo" value="${num(f.saldo)?dec(num(f.saldo),2):""}" placeholder="R$"></label>`:""}</div>
+    <input type="text" inputmode="decimal" class="val mono" data-k="valor" value="${dec(num(f.valor),2)}" aria-label="Valor de ${esc(f.nome)}">
+    <span data-a="delwrap"><button type="button" class="ghost" aria-label="Tirar ${esc(f.nome)}">×</button></span></div>`};
+  el.innerHTML=`<div class="howto">Marque a caixinha quando pagar: o gasto entra sozinho no mês. O valor dá para mudar ali mesmo (luz, cartão…).</div>
+  <div class="grid2">
+    <div class="panel"><div class="row"><h2 class="grow">Contas fixas</h2><span class="mono small">${brl(soma(fixas))}/mês</span></div><div>${fixas.map(linha).join("")||'<div class="empty">Aluguel, internet, celular, assinaturas, MiniMax, Topaz…</div>'}</div></div>
+    <div class="panel"><div class="row"><h2 class="grow">Dívidas e parcelas</h2><span class="mono small">${brl(soma(div))}/mês</span></div><div>${div.map(linha).join("")||'<div class="empty">Nenhuma dívida em '+esc(mesTxt(m))+'.</div>'}</div></div>
+  </div>
+  <form class="panel" id="fxNovo"><h3>Adicionar</h3><div class="fform">
+    <label>É<select id="fxTipo"><option value="fixa">Conta fixa</option><option value="divida">Dívida ou parcela</option></select></label>
+    <label>Nome<input type="text" id="fxNome" required placeholder="Internet, cartão Nubank…"></label>
+    <label>Valor por mês<input type="text" id="fxValor" inputmode="decimal" required placeholder="R$"></label>
+    <label>Vence dia<input type="number" id="fxDia" min="1" max="31" placeholder="10"></label>
+    <label>Categoria<select id="fxCat">${opts(CAT_SAI,"Contas da casa")}</select></label>
+    <label>Juros ao mês, % (dívida)<input type="text" id="fxJuros" inputmode="decimal" placeholder="ex.: 3,5"></label>
+    <label>Ainda devo (dívida)<input type="text" id="fxSaldo" inputmode="decimal" placeholder="R$"></label>
+    <label>Última parcela (dívida)<input type="month" id="fxTermina"></label>
+    <div class="full"><button class="primary">Adicionar</button></div></div></form>`;
+  $("#fxTipo").onchange=e=>{$("#fxCat").value=e.target.value==="divida"?"Dívidas":"Contas da casa"};
+  $("#fxNovo").onsubmit=e=>{e.preventDefault();const tipo=$("#fxTipo").value,id=uid();
+    const o={tipo,nome:$("#fxNome").value.trim(),valor:num($("#fxValor").value),dia:$("#fxDia").value,cat:$("#fxCat").value,pagos:{},criado:new Date().toISOString()};
+    if(tipo==="divida")Object.assign(o,{juros:num($("#fxJuros").value),saldo:num($("#fxSaldo").value),termina:$("#fxTermina").value});
+    if(!o.nome)return;F.fixas.push({id,...o});grava("fin_fixas/"+id,o);document.activeElement?.blur();renderFin();renderHoje()};
+  el.querySelectorAll(".fx").forEach(r=>{const id=r.dataset.id,f=()=>F.fixas.find(x=>x.id===id);
+    r.querySelector(".check").onchange=e=>marcarPaga(f(),m,e.target.checked);
+    r.querySelectorAll("[data-k]").forEach(i=>i.onchange=()=>{const x=f();x[i.dataset.k]=num(i.value);salvarF("fin_fixas",x);
+      if(i.dataset.k==="valor"&&(x.pagos||{})[m]){const lid="fx_"+id+"_"+m,l=F.lanc.find(y=>y.id===lid);if(l){l.valor=x.valor;salvarF("fin_lanc",l)}}renderFin();renderHoje()});
+    const w=r.querySelector('[data-a="delwrap"]');w.querySelector("button").onclick=()=>confirmar(w,()=>{F.fixas=F.fixas.filter(x=>x.id!==id);grava("fin_fixas/"+id,null,"del");renderFin();renderHoje()})});
+}
+
+function subTiktok(el){
+  const ms=[...new Set(F.tiktok.map(x=>x.mes))].sort().reverse();
+  const nomes=[...new Set([...S.contas.map(c=>c.nome),...F.tiktok.map(x=>x.conta)])];
+  el.innerHTML=`<form class="panel" id="tkNovo"><h3>Anotar o mês de uma conta</h3><div class="fform">
+    <label>Mês<input type="month" id="tkMes" value="${F.mes}" required></label>
+    <label>Conta<input type="text" id="tkConta" list="tkContas" required placeholder="FEAR, Davi…"></label>
+    <label>Views no mês<input type="text" id="tkViews" inputmode="numeric" placeholder="1.200.000"></label>
+    <label>Ganho (US$)<input type="text" id="tkUsd" inputmode="decimal" placeholder="US$"></label>
+    <label>Caiu na conta (R$, quando cair)<input type="text" id="tkBrl" inputmode="decimal" placeholder="R$"></label>
+    <label>Anotação<input type="text" id="tkObs" placeholder="banida, nicho novo…"></label>
+    <div class="full row"><button class="primary">Guardar</button><span class="small muted">Mesma conta e mês de novo substitui. O valor em R$ entra como entrada do mês.</span></div></div>
+    <datalist id="tkContas">${nomes.map(c=>`<option value="${esc(c)}">`).join("")}</datalist></form>
+  ${ms.length?ms.map(mm=>{const L=F.tiktok.filter(x=>x.mes===mm).sort((a,b)=>num(b.usd)-num(a.usd)),tu=L.reduce((s,x)=>s+num(x.usd),0),tv=L.reduce((s,x)=>s+num(x.views),0);
+    return `<div class="panel"><div class="row"><h2 class="grow">${mesTit(mm)}</h2><span class="mono small">${usd(tu)} · ${fmtNum(tv)} views${tv&&tu?" · RPM "+dec(tu/tv*1000,2):""}</span></div>
+      <div class="tablewrap"><table><thead><tr><th>Conta</th><th>Views</th><th>US$</th><th>RPM</th><th>Recebido</th><th></th></tr></thead><tbody>${L.map(x=>{const r=rpm(x);return `<tr data-id="${esc(x.id)}">
+        <td><b>${esc(x.conta)}</b>${x.obs?'<div class="small muted">'+esc(x.obs)+"</div>":""}</td><td class="mono">${fmtNum(num(x.views))}</td><td class="mono">${usd(x.usd)}</td>
+        <td>${r?`<span class="rpm ${rpmNivel(r)}">${dec(r,2)}</span>`:"—"}</td><td class="mono">${num(x.brl)?brl(x.brl):"—"}</td>
+        <td style="white-space:nowrap"><button type="button" class="ghost small" data-a="ed">editar</button><span data-a="delwrap"><button type="button" class="ghost" aria-label="Apagar">×</button></span></td></tr>`}).join("")}</tbody></table></div></div>`}).join("")
+    :'<div class="empty">Anote no fim de cada mês: views e ganho de cada conta. Com dois meses dá para ver qual conta está caindo. RPM bom: US$ 2 a 4 por mil views.</div>'}`;
+  $("#tkNovo").onsubmit=e=>{e.preventDefault();const conta=$("#tkConta").value.trim(),mes=$("#tkMes").value;if(!conta||!mes)return;
+    const id=mes+"_"+(conta.toLowerCase().replace(/[^a-z0-9]+/g,"-")||uid());
+    const o={mes,conta,views:num(String($("#tkViews").value).replace(/\D/g,"")),usd:num($("#tkUsd").value),brl:num($("#tkBrl").value),obs:$("#tkObs").value.trim(),criado:new Date().toISOString()};
+    F.tiktok=F.tiktok.filter(x=>x.id!==id);F.tiktok.push({id,...o});grava("fin_tiktok/"+id,o);document.activeElement?.blur();renderFin()};
+  el.querySelectorAll("tr[data-id]").forEach(r=>{const id=r.dataset.id,x=F.tiktok.find(y=>y.id===id);
+    r.querySelector('[data-a="ed"]').onclick=()=>{$("#tkMes").value=x.mes;$("#tkConta").value=x.conta;$("#tkViews").value=x.views||"";$("#tkUsd").value=x.usd?dec(x.usd,2):"";$("#tkBrl").value=x.brl?dec(x.brl,2):"";$("#tkObs").value=x.obs||"";$("#tkViews").focus()};
+    const w=r.querySelector('[data-a="delwrap"]');w.querySelector("button").onclick=()=>confirmar(w,()=>{F.tiktok=F.tiktok.filter(y=>y.id!==id);grava("fin_tiktok/"+id,null,"del");renderFin()})});
+}
+
+function subMetas(el){
+  const gm=gastoMedio();
+  el.innerHTML=`<div class="panel"><h2>Metas</h2><div>${F.metas.length?F.metas.slice().sort((a,b)=>(b.reserva?1:0)-(a.reserva?1:0)).map(x=>{
+      const alvo=num(x.alvo),g=num(x.guardado),p=alvo?Math.min(1,g/alvo):0,meses=x.prazo?mesesEntre(mesAtual(),x.prazo):null,porMes=meses>0&&alvo>g?(alvo-g)/meses:null;
+      return `<div class="fx" style="grid-template-columns:1fr auto auto" data-id="${esc(x.id)}"><div class="txt"><b>${esc(x.nome)}</b>${x.reserva?' <span class="tag">reserva</span>':""}
+        <div class="prog" style="margin:6px 0"><span style="width:${p*100}%"></span></div>
+        <div class="meta">${brl(g)} de ${brl(alvo)} (${pct(p)})${x.prazo?" · até "+mesCurto(x.prazo):""}${porMes?" · guardar "+brl(porMes)+"/mês":""}${x.reserva&&gm?" · cobre "+dec(g/gm)+" meses":""}</div></div>
+        <label class="meta" style="display:flex;flex-direction:column">guardado<input type="text" inputmode="decimal" class="val mono" data-k="guardado" value="${dec(g,2)}"></label>
+        <span data-a="delwrap"><button type="button" class="ghost" aria-label="Apagar meta">×</button></span></div>`}).join(""):'<div class="empty">Comece pela reserva de emergência.</div>'}</div></div>
+  <form class="panel" id="mtNovo"><h3>Nova meta</h3><div class="fform">
+    <label>Nome<input type="text" id="mtNome" required placeholder="Reserva, PC novo, viagem…"></label>
+    <label>Quanto quero ter<input type="text" id="mtAlvo" inputmode="decimal" placeholder="${gm?"reserva: "+brl(gm*6)+" (6 meses)":"R$"}"></label>
+    <label>Já tenho<input type="text" id="mtGuardado" inputmode="decimal" placeholder="R$"></label>
+    <label>Até quando<input type="month" id="mtPrazo"></label>
+    <label class="row" style="flex-direction:row;align-items:center"><input type="checkbox" id="mtReserva"> é a reserva de emergência</label>
+    <div class="full"><button class="primary">Adicionar</button></div></div></form>`;
+  $("#mtNovo").onsubmit=e=>{e.preventDefault();const id=uid(),res=$("#mtReserva").checked;
+    const o={nome:$("#mtNome").value.trim(),alvo:num($("#mtAlvo").value)||(res?Math.round(gm*6):0),guardado:num($("#mtGuardado").value),prazo:$("#mtPrazo").value,reserva:res,criado:new Date().toISOString()};
+    if(!o.nome)return;if(res)F.metas.filter(x=>x.reserva).forEach(x=>{x.reserva=false;salvarF("fin_metas",x)});
+    F.metas.push({id,...o});grava("fin_metas/"+id,o);document.activeElement?.blur();renderFin()};
+  el.querySelectorAll(".fx[data-id]").forEach(r=>{const id=r.dataset.id,x=()=>F.metas.find(y=>y.id===id);
+    r.querySelector('[data-k="guardado"]').onchange=e=>{const m=x();m.guardado=num(e.target.value);salvarF("fin_metas",m);renderFin()};
+    const w=r.querySelector('[data-a="delwrap"]');w.querySelector("button").onclick=()=>confirmar(w,()=>{F.metas=F.metas.filter(y=>y.id!==id);grava("fin_metas/"+id,null,"del");renderFin()})});
+}
+
+function subInvest(el){
+  const tot=F.invest.reduce((s,i)=>s+num(i.valor),0),por={};F.invest.forEach(i=>{por[i.tipo||"Outro"]=(por[i.tipo||"Outro"]||0)+num(i.valor)});
+  el.innerHTML=`<div class="howto">Aqui é para acompanhar quanto você tem e onde. Eu explico como as coisas funcionam e aponto riscos gerais (reserva antes de risco, tudo num lugar só, taxa alta), mas não digo em qual aplicação colocar: para isso, um planejador financeiro certificado.</div>
+  <div class="grid2">
+    <div class="panel"><div class="row"><h2 class="grow">Onde está</h2><span class="mono">${brl(tot)}</span></div>
+      <div class="bars">${tot?Object.entries(por).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="crow"><span>${esc(k)}</span><span class="mono">${brl(v)} · ${pct(v/tot)}</span><span class="track"><span class="fill" style="width:${v/tot*100}%"></span></span></div>`).join(""):'<div class="empty">Nada anotado.</div>'}</div></div>
+    <div class="panel"><h2>Aplicações</h2><div>${F.invest.map(i=>`<div class="fx" style="grid-template-columns:1fr auto auto" data-id="${esc(i.id)}"><div class="txt"><b>${esc(i.nome)}</b><div class="meta">${esc(i.tipo||"")} · atualizado ${fmtData(i.atualizado)}</div></div>
+      <input type="text" inputmode="decimal" class="val mono" data-k="valor" value="${dec(num(i.valor),2)}" aria-label="Valor de ${esc(i.nome)}">
+      <span data-a="delwrap"><button type="button" class="ghost" aria-label="Apagar">×</button></span></div>`).join("")||'<div class="empty">Poupança, Tesouro, CDB, corretora, cripto…</div>'}</div></div>
+  </div>
+  <form class="panel" id="ivNovo"><h3>Adicionar</h3><div class="fform">
+    <label>Nome<input type="text" id="ivNome" required placeholder="Caixinha Nubank, Tesouro Selic…"></label>
+    <label>Tipo<select id="ivTipo">${opts(TIPOS_INV)}</select></label>
+    <label>Valor hoje<input type="text" id="ivValor" inputmode="decimal" placeholder="R$"></label>
+    <div class="full"><button class="primary">Adicionar</button></div></div></form>`;
+  $("#ivNovo").onsubmit=e=>{e.preventDefault();const id=uid(),o={nome:$("#ivNome").value.trim(),tipo:$("#ivTipo").value,valor:num($("#ivValor").value),atualizado:hojeISO(),criado:new Date().toISOString()};
+    if(!o.nome)return;F.invest.push({id,...o});grava("fin_invest/"+id,o);document.activeElement?.blur();renderFin()};
+  el.querySelectorAll(".fx[data-id]").forEach(r=>{const id=r.dataset.id,x=()=>F.invest.find(y=>y.id===id);
+    r.querySelector('[data-k="valor"]').onchange=e=>{const i=x();i.valor=num(e.target.value);i.atualizado=hojeISO();salvarF("fin_invest",i);renderFin()};
+    const w=r.querySelector('[data-a="delwrap"]');w.querySelector("button").onclick=()=>confirmar(w,()=>{F.invest=F.invest.filter(y=>y.id!==id);grava("fin_invest/"+id,null,"del");renderFin()})});
+}
+
+function subConselho(el,t,dicas){
+  const D=F.dicas.slice().sort((a,b)=>(b.criado||"").localeCompare(a.criado||""));
+  el.innerHTML=`<div class="grid2">
+    <div class="panel"><h2>Do Claude</h2><div class="dicas">${D.length?D.map(x=>`<div class="dica claude" data-id="${esc(x.id)}">${esc(x.texto)}<div class="row small muted" style="margin-top:6px">${fmtData((x.criado||"").slice(0,10))}<span data-a="delwrap"><button type="button" class="ghost small">apagar</button></span></div></div>`).join("")
+      :'<div class="empty">Quando você me pedir opinião, eu deixo aqui o que acho, sem rodeio.</div>'}</div></div>
+    <div class="panel"><h2>Avisos de ${esc(mesTxt(F.mes))}</h2><div class="dicas">${dicas.length?dicas.map(([n,x])=>`<div class="dica ${n}">${x}</div>`).join(""):'<div class="dica ok">Nada fora do lugar neste mês.</div>'}</div></div>
+  </div>
+  <div class="panel"><h2>Pedir minha opinião</h2>
+    <p class="small muted" style="margin:0">No PC, é só me pedir "olha minhas finanças": eu leio daqui direto. No celular, copie o resumo e cole na conversa.</p>
+    <div class="row"><button type="button" class="primary" id="cpResumo">Copiar resumo do mês</button><span class="small muted" id="cpMsg"></span></div>
+    <details><summary class="small muted">Ver o resumo</summary><textarea readonly id="txResumo" style="min-height:200px;font-family:var(--f-mono);font-size:12px">${esc(resumoTexto())}</textarea></details></div>`;
+  $("#cpResumo").onclick=async()=>{const tx=resumoTexto();try{await navigator.clipboard.writeText(tx);$("#cpMsg").textContent="Copiado. Cole na conversa com o Claude."}
+    catch(e){const a=$("#txResumo");a.closest("details").open=true;a.select();$("#cpMsg").textContent="Não deu para copiar sozinho: o texto está selecionado, copie com Ctrl+C."}};
+  el.querySelectorAll(".dica.claude").forEach(r=>{const id=r.dataset.id,w=r.querySelector('[data-a="delwrap"]');
+    w.querySelector("button").onclick=()=>confirmar(w,()=>{F.dicas=F.dicas.filter(y=>y.id!==id);grava("fin_dicas/"+id,null,"del");renderFin()})});
+}
+
+function tudo(){renderIdeias();renderContas();renderVideos();renderVirais();renderRotina();renderFin();renderHoje()}
 tudo();setInterval(renderHoje,60000);
 
 /* ---------- banco ---------- */
@@ -518,6 +846,13 @@ tudo();setInterval(renderHoje,60000);
   col("virais",l=>{S.virais=l;renderVirais()});
   col("dias",l=>{S.dias=l;renderHoje()});
   col("videos",l=>{S.videosObs=Object.fromEntries(l.map(x=>[x.id,x]));});
+  col("fin_lanc",l=>{F.lanc=l;renderFin();renderHoje()});
+  col("fin_fixas",l=>{F.fixas=l;renderFin();renderHoje()});
+  col("fin_metas",l=>{F.metas=l;renderFin()});
+  col("fin_invest",l=>{F.invest=l;renderFin()});
+  col("fin_tiktok",l=>{F.tiktok=l;renderFin()});
+  col("fin_dicas",l=>{F.dicas=l;renderFin()});
+  db.doc("fin_cfg/geral").onSnapshot(s=>{if(s.exists){F.cfg={orc:{},...s.data()};renderFin()}},err);
   db.doc("sync/estado").onSnapshot(s=>{if(s.exists){S.estado=s.data();renderVideos();renderContas();renderHoje()}},err);
   db.doc("rotina/semana").onSnapshot(s=>{if(s.exists){S.rotina={blocos:[...(s.data().blocos||[])]};renderRotina();renderHoje()}},err);
 })();
