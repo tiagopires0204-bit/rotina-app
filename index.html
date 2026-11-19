@@ -102,7 +102,7 @@ button.danger{color:var(--bad)}
 .conta .fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .conta details summary{cursor:pointer;font-size:13px;color:var(--muted)}
 /* esteira de vídeos */
-.pipe{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.pipe{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .stage{border-radius:8px;padding:10px;background:var(--bg);border:1px solid var(--line);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
 .stage .k{font-family:var(--f-display);font-weight:800;font-size:24px;line-height:1}
 .stage .l{font-size:12px;color:var(--muted);font-weight:600}
@@ -116,6 +116,12 @@ th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.07em;
 td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 tr:last-child td{border-bottom:0}
 td.p{font-family:var(--f-mono);font-weight:600}
+table.desemp td{vertical-align:middle;white-space:nowrap}
+.ordens{border-left:4px solid var(--mark)}.ordem{padding:8px 0;border-bottom:1px solid var(--line)}.ordem:last-child{border-bottom:0}
+.gtabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:4px 18px}
+.gtab{font-size:13px}.gtab th,.gtab td{padding:4px 6px}
+.rbar{display:inline-block;width:60px;height:8px;background:var(--sunk);border-radius:4px;overflow:hidden;margin-right:6px;vertical-align:middle}
+.rbar span{display:block;height:100%;background:var(--accent)}
 td .obs{width:100%;min-width:140px;padding:4px 8px;font-size:13px;background:transparent;border-color:transparent}
 td .obs:hover,td .obs:focus{border-color:var(--line);background:var(--bg)}
 .howto{font-size:13px;color:var(--muted);background:var(--bg);border-radius:8px;padding:10px 12px}
@@ -206,9 +212,7 @@ details.panel>summary{cursor:pointer}
       <a href="#dinheiro" data-v="dinheiro">Dinheiro <span class="n alert" id="nFin" hidden></span></a>
       <a href="#saude" data-v="saude">Saúde</a>
       <a href="#ideias" data-v="ideias">Pensamentos <span class="n" id="nIdeias">0</span></a>
-      <a href="#contas" data-v="contas">Contas <span class="n" id="nContas">0</span></a>
-      <a href="#videos" data-v="videos">Vídeos</a>
-      <a href="#virais" data-v="virais">Deram bom</a>
+      <a href="#desempenho" data-v="desempenho">Desempenho</a>
       <a href="#rotina" data-v="rotina">Rotina</a>
     </nav>
   </div>
@@ -279,53 +283,27 @@ details.panel>summary{cursor:pointer}
     <div id="listaIdeias" class="view"></div>
   </section>
 
-  <!-- CONTAS -->
-  <section class="view" id="v-contas" hidden>
-    <div class="howto">O dia em cada conta conta assim: vídeos prontos na pasta da conta (<code>E:\manja\&lt;CONTA&gt;\</code>, fora de <code>postados</code>) divididos pelos posts por dia. Se a conta tem fila agendada em outro lugar, preencha "agendado até" e ele vale.</div>
-    <div class="contas" id="listaContas"></div>
-    <form class="panel" id="novaConta">
-      <h3>Nova conta</h3>
-      <div class="row"><input type="text" id="ncNome" placeholder="Nome igual ao da pasta no E:\manja" class="grow" required><input type="number" id="ncPorDia" min="0" step="0.5" value="1" style="width:90px" aria-label="Posts por dia"><button class="primary">Adicionar</button></div>
-    </form>
-  </section>
-
-  <!-- VÍDEOS -->
-  <section class="view" id="v-videos" hidden>
+  <!-- DESEMPENHO (juntou Contas, Vídeos e Deram bom em 19/11) -->
+  <section class="view" id="v-desempenho" hidden>
+    <div class="panel ordens">
+      <h2>Ordens do Claude</h2>
+      <div id="ordens"></div>
+      <p class="small muted" style="margin:6px 0 0">Esta aba é do Claude: ele lança os números dos seus prints (mande o print da análise e o da receita de cada vídeo, dizendo a conta) e escreve aqui o que fazer nos próximos vídeos.</p>
+    </div>
     <div class="pipe" id="pipe"></div>
+    <div class="panel">
+      <div class="row"><h2 class="grow">O que puxa RPM e views</h2><span class="small muted" id="fCount"></span></div>
+      <div id="formula"></div>
+    </div>
     <div class="row">
       <input type="search" id="vBusca" placeholder="Procurar (bob45, lt09…)" class="grow">
       <select id="vConta" aria-label="Conta"><option value="">Todas as contas</option></select>
-      <select id="vTipo" aria-label="Tipo"><option value="">Original e cortes</option><option value="original">Só ORIGINAL</option><option value="cortes">Só cortes</option></select>
     </div>
-    <div class="tablewrap"><table>
-      <thead><tr><th>Vídeo</th><th>Etapa</th><th>Conta</th><th>Data</th><th>Anotação</th><th></th></tr></thead>
+    <div class="tablewrap"><table class="desemp">
+      <thead><tr><th>Vídeo</th><th>Conta</th><th>Etapa</th><th title="Trecho original do filme, em segundos">Trecho</th><th title="Duração do vídeo">Total</th><th>Views</th><th title="Tempo médio assistido, em segundos">Médio (s)</th><th title="% que assistiu até o fim">% fim</th><th title="US$ por mil views">RPM</th></tr></thead>
       <tbody id="tbVideos"></tbody>
     </table></div>
     <p class="small muted" id="vCount"></p>
-    <div class="howto"><b>Como exportar sem se perder:</b> exporte do CapCut para <code>E:\manja\&lt;nome do projeto&gt;\</code> (vídeo + MP3). O Topaz pega sozinho o que estiver solto no <code>E:\manja</code>. Depois do Topaz, arraste a pasta para <code>E:\manja\&lt;CONTA&gt;\</code>. Postou? Arraste para <code>E:\manja\&lt;CONTA&gt;\postados\</code>. A etapa sai do lugar da pasta: peça "atualiza o painel" ao Claude e esta lista se atualiza.</div>
-  </section>
-
-  <!-- VIRAIS -->
-  <section class="view" id="v-virais" hidden>
-    <form class="panel" id="vfForm">
-      <h2>Anotar um vídeo que deu bom</h2>
-      <div class="vform">
-        <input type="text" id="vfVideo" list="projList" placeholder="Vídeo (ex.: bob37)" required>
-        <select id="vfConta" aria-label="Conta"></select>
-        <input type="number" id="vfViews" min="0" placeholder="Views">
-        <input type="date" id="vfData" aria-label="Data do post">
-        <input type="text" id="vfTema" placeholder="Filme / série">
-        <input type="text" id="vfTags" placeholder="Tags: gancho forte, briga, romance…">
-        <input type="text" id="vfLink" placeholder="Link (opcional)" class="full">
-        <textarea id="vfPorque" placeholder="Por que você acha que funcionou? Gancho, cena, hora do post, música, capa…"></textarea>
-      </div>
-      <datalist id="projList"></datalist>
-      <div class="row"><button class="primary">Guardar</button><span class="small muted" id="vfStatus"></span></div>
-    </form>
-    <div class="grid2">
-      <div class="panel"><h2>Padrões</h2><div id="padroes"></div></div>
-      <div class="panel"><h2>Lista</h2><div id="listaVirais"></div></div>
-    </div>
   </section>
 
   <!-- ROTINA -->
@@ -338,7 +316,7 @@ details.panel>summary{cursor:pointer}
 <script>
 (function(){
 const DIAS=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
-const ETAPAS=[["maquina","Na máquina"],["capcut","No CapCut"],["exportado","Exportado"],["topaz","Topaz feito"],["conta","Na conta"],["postado","Postado"]];
+const ETAPAS=[["maquina","Na máquina"],["capcut","No CapCut"],["exportado","Exportado"],["topaz","Topaz feito"],["postado","Postado"]];  // "Na conta" saiu em 19/11: pasta de conta = postado
 const ETAPA_NOME=Object.fromEntries(ETAPAS);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -350,15 +328,15 @@ const addDias=(n)=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()
 const isoDe=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const diasAte=iso=>{const [y,m,d]=iso.split("-").map(Number);const a=new Date(y,m-1,d);const h=addDias(0);return Math.round((a-h)/864e5)};
 
-const S={notas:[],contas:[],virais:[],videosObs:{},estado:{videos:[],atualizado:""},rotina:{blocos:[]},dias:[],
+const S={notas:[],contas:[],virais:[],desemp:{},ordens:[],estado:{videos:[],atualizado:""},rotina:{blocos:[]},dias:[],
   fTipo:"",fArea:"",fEtapa:"",abertos:new Set()};
 let db=null;
 
 document.getElementById("hojeTxt").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
 
 /* ---------- navegação ---------- */
-const VIEWS=["hoje","dinheiro","saude","ideias","contas","videos","virais","rotina"];
-function rota(){const v=VIEWS.includes(location.hash.slice(1))?location.hash.slice(1):"hoje";
+const VIEWS=["hoje","dinheiro","saude","ideias","desempenho","rotina"];
+function rota(){let h=location.hash.slice(1);if(["contas","videos","virais"].includes(h))h="desempenho";const v=VIEWS.includes(h)?h:"hoje";
   VIEWS.forEach(x=>{document.getElementById("v-"+x).hidden=x!==v});
   document.querySelectorAll("#nav a").forEach(a=>{if(a.dataset.v===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});}
 window.addEventListener("hashchange",rota);rota();
@@ -434,57 +412,16 @@ $("#capHoje").onsubmit=e=>{e.preventDefault();novaNota($("#capHojeTxt").value,$(
 $("#capIdeia").onsubmit=e=>{e.preventDefault();novaNota($("#capIdeiaTxt").value,$("#capIdeiaTipo").value,$("#capIdeiaArea").value);$("#capIdeiaTxt").value="";$("#capIdeiaTxt").focus()};
 $("#mostrarFeitos").onchange=renderIdeias;
 
-/* ---------- contas ---------- */
-function infoConta(c){
-  const vids=S.estado.videos.filter(v=>v.conta===c.nome);
-  const prontos=vids.filter(v=>v.etapa==="conta").length;
-  const postados=vids.filter(v=>v.etapa==="postado").length;
-  const porDia=Number(c.porDia)||0;
-  let ate=null,fonte="";
-  if(c.agendadoAte){ate=c.agendadoAte;fonte="agendado"}
-  if(porDia>0){const auto=isoDe(addDias(Math.floor(prontos/porDia)));if(!ate||auto>ate){ate=auto;fonte=c.agendadoAte?"agendado + prontos":"pelos prontos"}}
-  const falta=ate?diasAte(ate):null;
-  if(!porDia&&!c.agendadoAte)return {prontos,postados,ate:null,falta:null,nivel:"ok",fonte:"",parada:true};
-  const nivel=falta===null?"warn":falta<=1?"bad":falta<=3?"warn":"ok";
-  return {prontos,postados,ate,falta,nivel,fonte};
+/* ---------- desempenho ---------- */
+// números de cada vídeo ficam na coleção "desemp" (id = id do vídeo); atributos (trecho, série, nota) vêm do agente, em sync/estado
+const fmt1=n=>n==null?"":String(Math.round(n*100)/100).replace(".",",");
+const docId=id=>id.replace(/[^A-Za-z0-9_.~:@+-]/g,"-");
+const naConta=v=>v.etapa==="conta"||v.etapa==="postado";
+function dadosVideo(v){
+  const d=S.desemp[docId(v.id)]||{};
+  const antigo=S.virais.find(x=>(x.video||"").toLowerCase().split(" ")[0]===v.proj);
+  return {views:d.views??(antigo?antigo.views:null),med:d.med??null,fim:d.fim??null,rpm:d.rpm??null};
 }
-function renderContas(){
-  if(ocupado("#listaContas",renderContas))return;
-  const el=$("#listaContas");
-  const alertas=S.contas.filter(c=>infoConta(c).nivel==="bad").length;
-  const n=$("#nContas");n.textContent=alertas||S.contas.length;n.classList.toggle("alert",alertas>0);
-  if(!S.contas.length){el.innerHTML='<div class="empty">Nenhuma conta ainda. Adicione abaixo com o mesmo nome da pasta no E:\\manja.</div>';return}
-  el.innerHTML=S.contas.slice().sort((a,b)=>(infoConta(a).falta??99)-(infoConta(b).falta??99)).map(c=>{const i=infoConta(c);return `
-  <div class="conta ${i.nivel}" data-id="${c.id}">
-    <div class="nome">${esc(c.nome)}</div>
-    <div class="ate">${i.ate?(i.falta<0?"Acabou "+fmtData(i.ate):i.falta===0?"Só hoje":"Até "+fmtData(i.ate)):(i.parada?"Sem postagem":"Sem fila")}<small>${i.parada?"0 posts por dia: não entra nos avisos":i.ate?(i.falta>0?i.falta+(i.falta===1?" dia":" dias")+" de vídeo · "+i.fonte:i.fonte):"defina posts por dia"}</small></div>
-    <div class="stats"><span><b>${i.prontos}</b> prontos</span><span><b>${i.postados}</b> postados</span><span><b>${esc(c.porDia||0)}</b>/dia</span></div>
-    <details><summary>Ajustar</summary>
-      <div class="fields" style="margin-top:8px">
-        <label>Posts por dia<input type="number" min="0" step="0.5" data-k="porDia" value="${esc(c.porDia??1)}"></label>
-        <label>Agendado até<input type="date" data-k="agendadoAte" value="${esc(c.agendadoAte||"")}"></label>
-      </div>
-      <label style="margin-top:8px">Anotações da conta (RPM, nicho, horário…)<textarea data-k="obs" style="min-height:60px">${esc(c.obs||"")}</textarea></label>
-      <span data-a="delwrap"><button type="button" class="ghost danger" data-a="del">Tirar conta do painel</button></span>
-    </details>
-  </div>`}).join("");
-  el.querySelectorAll(".conta").forEach(card=>{const id=card.dataset.id;const c=()=>S.contas.find(x=>x.id===id);
-    const salvar=p=>{Object.assign(c(),p);const o={...c()};delete o.id;return grava("contas/"+id,o).then(()=>{})};
-    card.querySelectorAll("[data-k]").forEach(f=>{const k=f.dataset.k;
-      if(f.tagName==="TEXTAREA")f.oninput=()=>adiar("c"+id,()=>salvar({[k]:f.value}));
-      else f.onchange=()=>{salvar({[k]:k==="porDia"?Number(f.value):f.value});renderContas();renderHoje()}});
-    const dw=card.querySelector('[data-a="delwrap"]');
-    dw.querySelector("button").onclick=()=>{dw.innerHTML='<span class="confirm">Tirar mesmo? <button type="button" class="ghost danger" data-s>Sim</button><button type="button" class="ghost" data-n>Não</button></span>';
-      dw.querySelector("[data-s]").onclick=()=>grava("contas/"+id,null,"del");dw.querySelector("[data-n]").onclick=renderContas};
-  });
-  const opts=S.contas.map(c=>`<option>${esc(c.nome)}</option>`).join("");
-  const vc=$("#vConta"),cur=vc.value;vc.innerHTML='<option value="">Todas as contas</option><option value="-">Sem conta</option>'+opts;vc.value=cur;
-  const fc=$("#vfConta"),cur2=fc.value;fc.innerHTML='<option value="">Conta…</option>'+opts;fc.value=cur2;
-}
-$("#novaConta").onsubmit=e=>{e.preventDefault();const nome=$("#ncNome").value.trim();if(!nome)return;const id=nome.toLowerCase().replace(/[^a-z0-9_-]+/g,"-")||uid();
-  const o={nome,porDia:Number($("#ncPorDia").value)||0,agendadoAte:"",obs:"",criado:new Date().toISOString()};S.contas.push({id,...o});renderContas();grava("contas/"+id,o);$("#ncNome").value=""};
-
-/* ---------- vídeos ---------- */
 function renderVideos(){
   if(ocupado("#tbVideos",renderVideos))return;
   const vids=S.estado.videos;
@@ -492,52 +429,60 @@ function renderVideos(){
   const max=Math.max(1,...Object.values(cont));
   $("#pipe").innerHTML=ETAPAS.map(([k,l])=>`<button type="button" class="stage" data-e="${k}" aria-pressed="${S.fEtapa===k}"><span class="k mono">${cont[k]}</span><span class="l">${l}</span><span class="bar" style="background:var(--s-${k});width:${Math.max(6,cont[k]/max*100)}%"></span></button>`).join("");
   $("#pipe").querySelectorAll(".stage").forEach(b=>b.onclick=()=>{S.fEtapa=S.fEtapa===b.dataset.e?"":b.dataset.e;renderVideos()});
-  const q=$("#vBusca").value.trim().toLowerCase(),fc=$("#vConta").value,ft=$("#vTipo").value;
-  const lista=vids.filter(v=>(!S.fEtapa||v.etapa===S.fEtapa)&&(!ft||v.tipo===ft)&&(!fc||(fc==="-"?!v.conta:v.conta===fc))&&(!q||(v.proj+" "+(v.pasta||"")).toLowerCase().includes(q)));
-  const mostra=lista.slice(0,300);
-  $("#tbVideos").innerHTML=mostra.length?mostra.map(v=>`<tr data-id="${esc(v.id)}">
-    <td class="p">${esc(v.proj)}${v.tipo==="original"?' <span class="tag">original</span>':""}</td>
+  const contas=[...new Set(vids.map(v=>v.conta).filter(Boolean))].sort();
+  const vc=$("#vConta"),cur=vc.value;vc.innerHTML='<option value="">Todas as contas</option>'+contas.map(c=>`<option>${esc(c)}</option>`).join("");vc.value=cur;
+  const q=$("#vBusca").value.trim().toLowerCase(),fc=vc.value;
+  // sem filtro de etapa: só o que já está nas contas (é o que tem número para lançar)
+  const lista=vids.filter(v=>(S.fEtapa?v.etapa===S.fEtapa:naConta(v))&&(!fc||v.conta===fc)&&(!q||(v.proj+" "+(v.serie||"")).toLowerCase().includes(q)))
+    .sort((a,b)=>(a.conta||"").localeCompare(b.conta||"")||a.proj.localeCompare(b.proj));
+  // só leitura: quem lança os números é o Claude, pelos prints
+  const cel=(v,k,val)=>val==null?`<td class="muted">—</td>`:`<td class="mono">${k==="views"?fmtNum(Math.round(val)):k==="fim"?fmt1(val)+"%":k==="rpm"?"$"+dec(val,2):fmt1(val)}</td>`;
+  $("#tbVideos").innerHTML=lista.length?lista.map(v=>{const d=dadosVideo(v);return `<tr data-id="${esc(v.id)}">
+    <td class="p">${esc(v.proj)}${v.tipo==="original"?' <span class="tag">orig</span>':""}${v.t45?' <span class="tag">45s</span>':""}${v.serie?`<div class="small muted">${esc(v.serie)}</div>`:""}</td>
+    <td>${esc(v.conta||"—")}</td>
     <td><span class="pill" style="background:var(--s-${v.etapa})">${ETAPA_NOME[v.etapa]||v.etapa}</span></td>
-    <td>${esc(v.conta||"—")}</td><td class="mono small">${fmtData(v.data)}</td>
-    <td><input class="obs" type="text" value="${esc((S.videosObs[v.id]||{}).obs||"")}" placeholder="anotar…" aria-label="Anotação de ${esc(v.proj)}"></td>
-    <td><button type="button" class="ghost" data-a="bom">Deu bom</button></td></tr>`).join("")
-    :`<tr><td colspan="6" class="muted">${vids.length?"Nenhum vídeo com esse filtro.":"A lista ainda está vazia. Peça ao Claude \"atualiza o painel\"."}</td></tr>`;
-  $("#vCount").textContent=lista.length+" de "+vids.length+" vídeos"+(lista.length>300?" (mostrando 300)":"");
-  $("#tbVideos").querySelectorAll("tr[data-id]").forEach(tr=>{const id=tr.dataset.id;const v=vids.find(x=>x.id===id);
-    tr.querySelector(".obs").oninput=e=>adiar("v"+id,()=>{S.videosObs[id]={...(S.videosObs[id]||{}),obs:e.target.value};grava("videos/"+id.replace(/[^A-Za-z0-9_.~:@+-]/g,"-"),S.videosObs[id])});
-    tr.querySelector('[data-a="bom"]').onclick=()=>{$("#vfVideo").value=v.proj+(v.tipo==="original"?" (original)":"");if(v.conta)$("#vfConta").value=v.conta;location.hash="virais";$("#vfViews").focus()}});
-  $("#projList").innerHTML=[...new Set(vids.map(v=>v.proj))].map(p=>`<option value="${esc(p)}">`).join("");
+    <td class="mono">${v.trecho?Math.round(v.trecho)+"s":"—"}</td><td class="mono">${v.total?Math.round(v.total)+"s":"—"}</td>
+    ${cel(v,"views",d.views)}${cel(v,"med",d.med)}${cel(v,"fim",d.fim)}${cel(v,"rpm",d.rpm)}</tr>`}).join("")
+    :`<tr><td colspan="9" class="muted">${vids.length?"Nenhum vídeo com esse filtro.":"A lista ainda está vazia: o agente do PC ainda não mandou as pastas."}</td></tr>`;
+  $("#vCount").textContent=lista.length+" vídeos"+(S.fEtapa?"":" nas contas")+". RPM em US$ por mil views.";
   $("#syncTxt").textContent=S.estado.atualizado?"pastas lidas em "+S.estado.atualizado.slice(8,10)+"/"+S.estado.atualizado.slice(5,7)+" "+S.estado.atualizado.slice(11):"";
+  renderFormula();
 }
-["vBusca","vConta","vTipo"].forEach(id=>document.getElementById(id).addEventListener("input",renderVideos));
+["vBusca","vConta"].forEach(id=>document.getElementById(id).addEventListener("input",renderVideos));
 
-/* ---------- virais ---------- */
-$("#vfData").value=hojeISO();
-$("#vfForm").onsubmit=e=>{e.preventDefault();const id=uid();
-  const o={video:$("#vfVideo").value.trim(),conta:$("#vfConta").value,views:Number($("#vfViews").value)||0,data:$("#vfData").value,tema:$("#vfTema").value.trim(),
-    tags:$("#vfTags").value.split(",").map(t=>t.trim().toLowerCase()).filter(Boolean),link:$("#vfLink").value.trim(),porque:$("#vfPorque").value.trim(),criado:new Date().toISOString()};
-  if(!o.video)return;S.virais.unshift({id,...o});renderVirais();grava("virais/"+id,o);
-  ["vfVideo","vfViews","vfTema","vfTags","vfLink","vfPorque"].forEach(i=>document.getElementById(i).value="");$("#vfStatus").textContent="Guardado."};
-function barras(titulo,mapa){const ent=Object.entries(mapa).sort((a,b)=>b[1].views-a[1].views).slice(0,6);if(!ent.length)return"";const max=Math.max(...ent.map(e=>e[1].views),1);
-  return `<h3 style="margin-top:8px">${titulo}</h3><div class="bars">${ent.map(([k,v])=>`<div class="barrow"><span class="lab" title="${esc(k)}">${esc(k)}</span><span class="track"><span class="fill" style="display:block;width:${v.views/max*100}%"></span></span><span class="mono small">${fmtNum(v.views)} · ${v.n}</span></div>`).join("")}</div>`}
-function renderVirais(){
-  const L=S.virais.slice().sort((a,b)=>(b.views||0)-(a.views||0));
-  $("#listaVirais").innerHTML=L.length?L.map(v=>`<div class="viral" data-id="${v.id}"><div class="views mono">${fmtNum(v.views)}<small>views</small></div>
-    <div><div><b class="mono">${esc(v.video)}</b> <span class="muted small">· ${esc(v.conta||"sem conta")} · ${fmtData(v.data)}${v.tema?" · "+esc(v.tema):""}</span></div>
-    ${v.tags?.length?`<div class="chips" style="margin-top:4px">${v.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>`:""}
-    ${v.porque?`<div class="why">${esc(v.porque)}</div>`:""}
-    <div class="row small">${v.link?`<a href="${esc(v.link)}" target="_blank" rel="noopener">abrir</a>`:""}<span data-a="delwrap"><button type="button" class="ghost danger small">apagar</button></span></div></div></div>`).join("")
-    :'<div class="empty">Quando um vídeo for bem, anote aqui: views, conta e por que você acha que funcionou. Com uns 10 anotados, os padrões aparecem ao lado.</div>';
-  $("#listaVirais").querySelectorAll(".viral").forEach(el=>{const id=el.dataset.id;const dw=el.querySelector('[data-a="delwrap"]');
-    dw.querySelector("button").onclick=()=>{dw.innerHTML='<span class="confirm">Apagar? <button type="button" class="ghost danger" data-s>Sim</button><button type="button" class="ghost" data-n>Não</button></span>';
-      dw.querySelector("[data-s]").onclick=()=>grava("virais/"+id,null,"del");dw.querySelector("[data-n]").onclick=renderVirais}});
-  const agg=f=>{const m={};L.forEach(v=>[].concat(f(v)).filter(Boolean).forEach(k=>{m[k]??={views:0,n:0};m[k].views+=v.views||0;m[k].n++}));return m};
-  const soma=L.reduce((s,v)=>s+(v.views||0),0);
-  $("#padroes").innerHTML=L.length<2?'<div class="empty">Anote pelo menos 2 vídeos para comparar.</div>':
-    `<p class="small" style="margin:0"><b class="mono">${L.length}</b> vídeos anotados, média de <b class="mono">${fmtNum(Math.round(soma/L.length))}</b> views.</p>`+
-    barras("Por tag (views somadas · vídeos)",agg(v=>v.tags))+barras("Por filme / série",agg(v=>v.tema))+barras("Por conta",agg(v=>v.conta))+
-    barras("Original x cortes",agg(v=>/original/i.test(v.video)?"original":"cortes"))+
-    barras("Dia da semana do post",agg(v=>v.data?DIAS[new Date(v.data+"T12:00").getDay()]:""));
+function renderOrdens(){const L=S.ordens.slice().sort((a,b)=>(b.criado||"").localeCompare(a.criado||""));
+  $("#ordens").innerHTML=L.length?L.map(o=>`<div class="ordem"><div>${esc(o.texto)}</div><div class="small muted">${fmtData((o.criado||"").slice(0,10))}</div></div>`).join("")
+    :'<div class="empty">Ainda sem ordens: faltam os números. Com uns 15 vídeos lançados, o Claude escreve aqui o que manter e o que mudar.</div>'}
+function corr(xs,ys){const n=xs.length;if(n<4)return null;const mx=xs.reduce((a,b)=>a+b)/n,my=ys.reduce((a,b)=>a+b)/n;
+  let sxy=0,sxx=0,syy=0;for(let i=0;i<n;i++){sxy+=(xs[i]-mx)*(ys[i]-my);sxx+=(xs[i]-mx)**2;syy+=(ys[i]-my)**2}
+  return sxx&&syy?sxy/Math.sqrt(sxx*syy):null}
+function renderFormula(){
+  const P=S.estado.videos.filter(naConta).map(v=>({...v,...dadosVideo(v),br:v.proj.startsWith("br_")})).filter(v=>v.views!=null||v.rpm!=null);
+  const comRpm=P.filter(v=>v.rpm!=null);
+  $("#fCount").textContent=P.length+" vídeos com números, "+comRpm.length+" com RPM";
+  if(P.length<3){$("#formula").innerHTML='<div class="empty">Lance views, tempo médio, % até o fim e RPM na tabela abaixo. Com 3 vídeos começa a comparação; com uns 15, ela começa a valer.</div>';return}
+  const media=(L,k)=>{const x=L.map(v=>v[k]).filter(n=>n!=null);return x.length?x.reduce((a,b)=>a+b)/x.length:null};
+  const faixa=(n,cortes,nomes)=>n==null?null:nomes[cortes.findIndex(c=>n<c)<0?cortes.length:cortes.findIndex(c=>n<c)];
+  const dims=[
+    ["Trecho original",v=>faixa(v.trecho,[50,60],["até 50s","50–60s","60s ou mais"])],
+    ["% até o fim",v=>faixa(v.fim,[20,35],["menos de 20%","20–35%","35% ou mais"])],
+    ["Tempo médio",v=>faixa(v.med,[30,45],["menos de 30s","30–45s","45s ou mais"])],
+    ["Duração total",v=>faixa(v.total,[95,115],["até 95s","95–115s","115s ou mais"])],
+    ["Nota do crítico",v=>v.nota==null?null:v.nota>=80?"80 ou mais":"abaixo de 80"],
+    ["Idioma",v=>v.br?"BR":"alemão"],
+    ["Conta",v=>v.conta],
+    ["Série",v=>v.serie||null]];
+  const tabela=([tit,f])=>{const g={};P.forEach(v=>{const k=f(v);if(k)(g[k]??=[]).push(v)});const ks=Object.keys(g);if(ks.length<2)return"";
+    const mr=Math.max(...ks.map(k=>media(g[k],"rpm")||0),0.01);
+    return `<div><h3>${tit}</h3><table class="gtab"><thead><tr><th></th><th>n</th><th>RPM médio</th><th>Views médio</th></tr></thead><tbody>${
+      ks.sort((a,b)=>(media(g[b],"rpm")||0)-(media(g[a],"rpm")||0)).map(k=>{const r=media(g[k],"rpm"),w=media(g[k],"views");return `<tr><td>${esc(k)}</td><td class="mono${g[k].length<3?" muted":""}">${g[k].length}</td>
+      <td><span class="rbar"><span style="width:${r?r/mr*100:0}%"></span></span><span class="mono">${r==null?"—":dec(r,2)}</span></td><td class="mono">${w==null?"—":fmtNum(Math.round(w))}</td></tr>`}).join("")}</tbody></table></div>`};
+  const fatores=[["% até o fim","fim"],["Tempo médio","med"],["Trecho original","trecho"],["Duração total","total"],["Nota do crítico","nota"],["Views","views"]];
+  const rs=fatores.map(([nome,k])=>{const L=comRpm.filter(v=>v[k]!=null);return [nome,corr(L.map(v=>v[k]),L.map(v=>v.rpm)),L.length]}).filter(x=>x[1]!=null).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]));
+  const forca=r=>Math.abs(r)>=.5?"forte":Math.abs(r)>=.3?"média":"fraca";
+  const resumo=rs.length?`<h3>Anda junto com o RPM</h3><ul class="small" style="margin:0;padding-left:18px">${rs.map(([n,r,c])=>`<li><b>${n}</b>: quanto maior, RPM ${r>0?"maior":"menor"} (ligação ${forca(r)}, r ${dec(r,2)}, ${c} vídeos)</li>`).join("")}</ul>
+    <p class="small muted" style="margin:6px 0 0">Ligação não é causa: confira se não é a conta ou a série puxando junto. Grupo com n menor que 3 é palpite.</p>`:"";
+  $("#formula").innerHTML=resumo+`<div class="gtabs">${dims.map(tabela).join("")}</div>`;
 }
 
 /* ---------- rotina ---------- */
@@ -559,7 +504,6 @@ function renderHoje(){
   $("#blocosHoje").innerHTML=bl.length?bl.map(b=>{const st=hm>=b.inicio&&hm<b.fim?"now":hm>=b.fim?"past":"";return `<div class="block ${st}"><span class="h">${esc(b.inicio)}–${esc(b.fim)}</span><span>${esc(b.oque)}</span><span class="small muted">${st==="now"?"agora":""}</span></div>`}).join("")
     :'<div class="empty">Nenhum bloco para hoje. Monte sua semana na aba Rotina.</div>';
   const al=[];
-  S.contas.forEach(c=>{const i=infoConta(c);if(i.nivel!=="ok"&&!i.parada)al.push([i.nivel,`<b>${esc(c.nome)}</b>: ${i.ate?(i.falta<=0?"sem vídeo para amanhã":"vídeo só até "+fmtData(i.ate)):"sem fila definida"}`])});
   const v=S.estado.videos,c=e=>v.filter(x=>x.etapa===e).length;
   if(c("topaz"))al.push(["warn",`<b>${c("topaz")}</b> vídeos saíram do Topaz e não foram para nenhuma conta`]);
   if(c("exportado"))al.push(["warn",`<b>${c("exportado")}</b> exportados esperando o Topaz`]);
@@ -1103,7 +1047,7 @@ function sdConselho(el,dicas){
     w.querySelector("button").onclick=()=>confirmar(w,()=>{H.dicas=H.dicas.filter(y=>y.id!==id);grava("sd_dicas/"+id,null,"del");rs()},renderSaude)});
 }
 
-function tudo(){renderIdeias();renderContas();renderVideos();renderVirais();renderRotina();renderFin();renderSaude();renderHoje()}
+function tudo(){renderIdeias();renderVideos();renderOrdens();renderRotina();renderFin();renderSaude();renderHoje()}
 tudo();setInterval(renderHoje,60000);
 
 /* ---------- banco ---------- */
@@ -1115,10 +1059,11 @@ tudo();setInterval(renderHoje,60000);
   const err=e=>{clearTimeout(timer);status("Erro ao ler os dados ("+e.code+"). Recarregue a página.",true)};
   const col=(nome,fn)=>db.collection(nome).onSnapshot(s=>{fn(s.docs.map(d=>({id:d.id,...d.data()})));if(!s.metadata.fromCache)ok()},err);
   col("notas",l=>{S.notas=l;renderIdeias();renderHoje()});
-  col("contas",l=>{S.contas=l;renderContas();renderHoje();renderVideos()});
-  col("virais",l=>{S.virais=l;renderVirais()});
+  col("contas",l=>{S.contas=l;renderFin()});
+  col("virais",l=>{S.virais=l;renderVideos()});
   col("dias",l=>{S.dias=l;renderHoje()});
-  col("videos",l=>{S.videosObs=Object.fromEntries(l.map(x=>[x.id,x]));});
+  col("desemp_ordens",l=>{S.ordens=l;renderOrdens()});
+  col("desemp",l=>{S.desemp=Object.fromEntries(l.map(x=>[x.id,x]));renderVideos()});
   col("fin_lanc",l=>{F.lanc=l;renderFin();renderHoje()});
   col("fin_fixas",l=>{F.fixas=l;renderFin();renderHoje()});
   col("fin_metas",l=>{F.metas=l;renderFin()});
@@ -1132,7 +1077,7 @@ tudo();setInterval(renderHoje,60000);
   col("sd_dicas",l=>{H.dicas=l;renderSaude()});
   db.doc("sd_cfg/geral").onSnapshot(s=>{if(s.exists){H.cfg=s.data();renderSaude();renderHoje()}},err);
   db.doc("fin_cfg/geral").onSnapshot(s=>{if(s.exists){F.cfg={orc:{},...s.data()};renderFin()}},err);
-  db.doc("sync/estado").onSnapshot(s=>{if(s.exists){S.estado=s.data();renderVideos();renderContas();renderHoje()}},err);
+  db.doc("sync/estado").onSnapshot(s=>{if(s.exists){S.estado=s.data();renderVideos();renderHoje()}},err);
   db.doc("rotina/semana").onSnapshot(s=>{if(s.exists){S.rotina={blocos:[...(s.data().blocos||[])]};renderRotina();renderHoje()}},err);
 })();
 })();
